@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-
-
 export default function ProfilePicker({ profile, setProfile }) {
 
     const [showCharacters, setShowCharacters] = useState(false);

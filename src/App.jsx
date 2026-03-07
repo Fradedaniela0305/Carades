@@ -11,12 +11,11 @@ import PopUp from "./pages/PopUp"
 
 function App() {
     const [nickname, setNickname] = useState("");
-    const [language, setLanguage] = useState("");
+    const [language, setLanguage] = useState("english");
     const [profile, setProfile] = useState("🐱");
-
+  
     return (
         <Routes>
-
             <Route path="/" element={<Home />} />
 
             <Route path="/login" element={<Login
