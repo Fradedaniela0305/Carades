@@ -7,7 +7,7 @@ import Game from "./pages/Game"
 import Leaderboard from "./components/Leaderboard"
 import GuessChat from "./components/GuessChat"
 import CodeEditor from "./components/CodeEditor"
-import PopUp from "./components/PopUp"
+import PopUp from "./pages/PopUp"
 
 function App() {
     const [nickname, setNickname] = useState("");
