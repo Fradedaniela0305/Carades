@@ -1,4 +1,5 @@
 import ProfilePicker from "../components/ProfilePicker";
+import { Link } from "react-router-dom"
 
 export default function Login({
   nickname,
@@ -8,6 +9,13 @@ export default function Login({
   profile,
   setProfile,
 }) {
+
+    const guardNickname = (e) => {
+        if (!nickname.trim()) {
+          e.preventDefault();
+          alert("Please enter a nickname first");
+        }
+      };
   return (
     <div className="min-h-screen min-w-screen bg-black text-white flex items-center justify-center p-6">
       <div className="relative w-full max-w-[520px] bg-black border-2 border-[#7BFF6C] rounded-2xl shadow-[0_0_30px_rgba(123,255,108,0.15)] overflow-hidden">
@@ -64,17 +72,17 @@ export default function Login({
 
           {/* actions */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
+            <Link to="/joinroom" onClick={guardNickname} className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
               Join Group
               <div className="absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-[#7BFF6C]" />
               <div className="absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-[#7BFF6C]" />
-            </button>
+            </Link>
 
-            <button className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
+            <Link to='/createroom' onClick={guardNickname} className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
               Create Group
               <div className="absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-[#7BFF6C]" />
               <div className="absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-[#7BFF6C]" />
-            </button>
+            </Link>
           </div>
         </div>
 
