@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ref, set } from "firebase/database";
+import { ref, set, serverTimestamp } from "firebase/database";
 import { db } from "../lib/firebase";
 
 export default function CreateGroup({ nickname, language, profile }) {
@@ -28,6 +28,7 @@ export default function CreateGroup({ nickname, language, profile }) {
 
     await set(ref(db, `rooms/${roomCode}`), {
       language: language,
+      createdAt: serverTimestamp(),
       players: {
         [playerId]: {
           name: nickname,

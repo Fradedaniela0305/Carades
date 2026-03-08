@@ -56,9 +56,9 @@ function App() {
                 />} />
 
                 <Route path="/createroom" element={<CreateGroup
-                    playerName={nickname}
-                    playerLanguage={language}
-                    playerProfile={profile} />} />
+                    nickname={nickname}
+                    language={language}
+                    profile={profile} />} />
             </Routes>
         </ThemeProvider>
     )
