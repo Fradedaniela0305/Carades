@@ -4,7 +4,7 @@ import { ref, onValue, set, get } from "firebase/database"
 import { db } from "../lib/firebase"
 import { useTheme } from "../context/ThemeContext"
 
-export default function JoinGroup({ playerName, playerLanguage, playerProfile }) {
+export default function JoinGroup({ playerName, playerLanguage, playerProfile, roomId, setRoomId }) {
   const [rooms, setRooms] = useState([])
   const [roomCode, setRoomCode] = useState("")
   const { isDarkMode } = useTheme()
@@ -52,6 +52,7 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile })
       profile: playerProfile
     })
     navigate(`/rooms/${roomId}/popup`)
+    setRoomId(roomId)
   }
 
   async function joinByCode() {
@@ -69,6 +70,7 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile })
       language: playerLanguage,
       profile: playerProfile
     })
+    setRoomId(roomCode)
     navigate(`/room/${roomCode}`)
   }
 
