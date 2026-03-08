@@ -52,7 +52,7 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile, r
       language: playerLanguage,
       profile: playerProfile
     })
-    navigate(`/rooms/${roomCode}/waiting`)
+    navigate(`/rooms/${roomId}/waiting`)
     setRoomId(roomId)
   }
 
