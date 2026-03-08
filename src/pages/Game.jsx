@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router-dom"
 import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
@@ -16,7 +16,7 @@ export default function Game() {
     const [room, setRoom] = useState(null)
     const [players, setPlayers] = useState({})
     const [currentCoder, setCurrentCoder] = useState("")
-    const ROUND_DURATION = 30 // seconds
+    const ROUND_DURATION = 30
     const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
 
     const [showAnswerPopup, setShowAnswerPopup] = useState(false)
@@ -24,7 +24,10 @@ export default function Game() {
 
     const playerID = localStorage.getItem("playerID")
 
-    // Theme styling mapping
+    const initialRoundStartedRef = useRef(false)
+    const nextRoundStartedRef = useRef(false)
+    const roundEndedRef = useRef(false)
+
     const colors = {
         bg: isDarkMode ? "bg-black" : "bg-slate-50",
         card: isDarkMode ? "bg-black/40" : "bg-white",
@@ -69,31 +72,45 @@ export default function Game() {
             if (!data) return
 
             setRoom(data)
+            setPlayers(data.players || {})
+            setCurrentCoder(data.currentCoder || "")
 
             if (!data.roundActive && data.revealedAnswer) {
                 setRevealedAnswer(data.revealedAnswer)
                 setShowAnswerPopup(true)
+                nextRoundStartedRef.current = false
             } else {
                 setShowAnswerPopup(false)
             }
-            if (data.roundStartTime) {
+
+            if (data.roundActive && data.roundStartTime) {
                 const elapsed = Math.floor((Date.now() - data.roundStartTime) / 1000)
                 const remaining = ROUND_DURATION - elapsed
                 setTimeLeft(Math.max(remaining, 0))
+                roundEndedRef.current = false
             } else {
                 setTimeLeft(ROUND_DURATION)
             }
-            setPlayers(data.players || {})
-            setCurrentCoder(data.currentCoder)
 
             const playerList = Object.keys(data.players || {})
-            if (
+
+            // Only start the very first round automatically
+            const shouldStartInitialRound =
                 playerList.length > 0 &&
                 !data.roundActive &&
                 !data.revealedAnswer &&
-                playerID === data.currentCoder
-              ) {
+                !data.roundStartTime &&
+                !data.concept &&
+                playerID === data.currentCoder &&
+                !initialRoundStartedRef.current
+
+            if (shouldStartInitialRound) {
+                initialRoundStartedRef.current = true
                 startRound(data.players, data.currentCoder)
+            }
+
+            if (data.roundActive) {
+                initialRoundStartedRef.current = false
             }
         })
 
@@ -101,44 +118,54 @@ export default function Game() {
     }, [roomID, playerID])
 
     useEffect(() => {
-        if (!room?.roundStartTime) return
+        if (!room?.roundActive || !room?.roundStartTime) return
 
         const interval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - room.roundStartTime) / 1000)
             const remaining = ROUND_DURATION - elapsed
             setTimeLeft(Math.max(remaining, 0))
 
-            if (remaining <= 0 && playerID === room.currentCoder) {
+            if (
+                remaining <= 0 &&
+                playerID === room.currentCoder &&
+                !roundEndedRef.current
+            ) {
+                roundEndedRef.current = true
+
                 const nextCoder = getNextCoder(players, room.currentCoder)
 
                 update(ref(db, `rooms/${roomID}`), {
                     revealedAnswer: room.concept,
                     roundActive: false,
-                    currentCoder: nextCoder
+                    currentCoder: nextCoder,
+                    roundStartTime: null
                 })
             }
         }, 1000)
 
         return () => clearInterval(interval)
-    }, [room, players])
+    }, [room?.roundActive, room?.roundStartTime, room?.currentCoder, room?.concept, roomID, playerID, players])
 
     useEffect(() => {
         if (!showAnswerPopup) return
-      
+
         const timer = setTimeout(() => {
-      
-          setShowAnswerPopup(false)
-      
-          // start next round
-          if (playerID === currentCoder) {
-            startRound(players, currentCoder)
-          }
-      
-        }, 5000) // popup duration
-      
+            setShowAnswerPopup(false)
+
+            if (
+                playerID === currentCoder &&
+                room &&
+                !room.roundActive &&
+                room.revealedAnswer &&
+                !nextRoundStartedRef.current
+            ) {
+                nextRoundStartedRef.current = true
+                startRound(players, currentCoder)
+            }
+        }, 5000)
+
         return () => clearTimeout(timer)
-      
-      }, [showAnswerPopup])
+    }, [showAnswerPopup, playerID, currentCoder, room, players])
 
     if (!room) {
         return (
@@ -151,7 +178,6 @@ export default function Game() {
     return (
         <div className={`h-screen w-screen grid grid-cols-[320px_1fr] grid-rows-[1fr_140px] gap-4 p-4 ${colors.bg} transition-colors duration-300`}>
 
-            {/* Leaderboard */}
             <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
                 <div className={`${colors.accent}`}>
                     <Leaderboard players={players} currentCoder={currentCoder} />
@@ -162,42 +188,40 @@ export default function Game() {
                 </div>
             </div>
 
-            {/* Code Editor Area */}
             <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm overflow-hidden flex flex-col relative`}>
                 <div className="h-1 w-full bg-white/5 relative overflow-hidden">
                     <div className={`absolute inset-0 w-1/4 animate-[scan_3s_linear_infinite] ${colors.accentBg}`} />
                 </div>
 
                 <div className="flex-1 p-2">
-                    {showAnswerPopup ? (<AnswerPopup answer={revealedAnswer} />) :
-                        (<CodeEditor
+                    {showAnswerPopup ? (
+                        <AnswerPopup answer={revealedAnswer} />
+                    ) : (
+                        <CodeEditor
                             roomID={roomID}
                             isCoder={playerID === currentCoder}
                             ROUND_DURATION={ROUND_DURATION}
-
-                        />)
-                    }
+                        />
+                    )}
                 </div>
 
-                {/* TIMER DISPLAY - Works for both Light and Dark mode */}
-                <div className={`absolute bottom-0 left-0 w-full px-6 py-2 border-t ${colors.border} ${isDarkMode ? 'bg-black/60' : 'bg-white/80'} backdrop-blur-md flex justify-between items-center z-10`}>
+                <div className={`absolute bottom-0 left-0 w-full px-6 py-2 border-t ${colors.border} ${isDarkMode ? "bg-black/60" : "bg-white/80"} backdrop-blur-md flex justify-between items-center z-10`}>
                     <div className="flex items-center gap-3">
                         <span className={`text-[10px] font-goldman tracking-[0.2em] opacity-70 ${colors.accent}`}>TIME_LEFT:</span>
-                        <span className={`text-xl font-mono font-bold tabular-nums ${timeLeft < 20 ? 'text-red-500 animate-pulse' : colors.accent}`}>
-                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        <span className={`text-xl font-mono font-bold tabular-nums ${timeLeft < 20 ? "text-red-500 animate-pulse" : colors.accent}`}>
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
                         </span>
                     </div>
 
-                    <div className={`w-48 h-1 ${isDarkMode ? 'bg-white/10' : 'bg-slate-200'} rounded-full overflow-hidden`}>
+                    <div className={`w-48 h-1 ${isDarkMode ? "bg-white/10" : "bg-slate-200"} rounded-full overflow-hidden`}>
                         <div
-                            className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 20 ? 'bg-red-500' : colors.accentBg}`}
+                            className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 20 ? "bg-red-500" : colors.accentBg}`}
                             style={{ width: `${(timeLeft / ROUND_DURATION) * 100}%` }}
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Guessing / Answer Interface */}
             <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 flex items-center shadow-lg relative`}>
                 <AnswerBox
                     roomID={roomID}
@@ -216,4 +240,4 @@ export default function Game() {
             `}</style>
         </div>
     )
-}
+}0
