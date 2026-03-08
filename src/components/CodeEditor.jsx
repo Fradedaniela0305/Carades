@@ -22,7 +22,13 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
   const [code, setCode] = useState(commentMap["javascript"])
   const { isDarkMode } = useTheme()
 
-  const [gameMeta, setGameMeta] = useState({ category: "", hints: "", startTime: null })
+  // Added 'concept' to the meta state
+  const [gameMeta, setGameMeta] = useState({ 
+    category: "", 
+    hints: "", 
+    concept: "", 
+    startTime: null 
+  })
   const [elapsed, setElapsed] = useState(0)
 
   useEffect(() => {
@@ -37,6 +43,7 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
       setGameMeta({
         category: data.category || "",
         hints: data.hints || "", 
+        concept: data.concept || "", // The actual word
         startTime: data.roundStartTime || null
       })
     })
@@ -54,8 +61,10 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
     return () => clearInterval(interval)
   }, [gameMeta.startTime])
 
-  const shouldShowCategory = elapsed >= ROUND_DURATION * 1 / 3
-  const shouldShowHint = elapsed >= ROUND_DURATION * 2 / 3
+  // DISPLAY LOGIC
+  // Coder sees everything instantly. Guesser follows the timer.
+  const showCategory = isCoder || elapsed >= (ROUND_DURATION * 1 / 3)
+  const showHint = isCoder || elapsed >= (ROUND_DURATION * 2 / 3)
 
   function handleLanguageChange(e) {
     const newLang = e.target.value
@@ -79,7 +88,7 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
   return (
     <div className="mt-6 flex flex-col gap-5 px-4 h-full">
       
-      {/* Header with Larger Category */}
+      {/* Header Section */}
       <div className="flex items-center justify-start gap-8 border-b border-[#7BFF6C]/10 pb-4">
         <div className="flex items-center gap-2">
             {isCoder ? (
@@ -95,8 +104,18 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
             )}
         </div>
 
-        {/* Enhanced Category Design */}
-        {shouldShowCategory && gameMeta.category && (
+        {/* Coder-only Word Display */}
+        {isCoder && gameMeta.concept && (
+          <div className="flex items-center gap-3 border-2 border-white/20 bg-white/5 px-4 py-2 rounded-xl">
+             <span className="font-goldman text-[10px] text-white/50 uppercase tracking-widest font-bold">Target Word</span>
+             <span className="font-goldman text-sm text-white uppercase tracking-[0.2em] font-black italic">
+              {gameMeta.concept}
+            </span>
+          </div>
+        )}
+
+        {/* Category Design (Visible to Coder instantly, Guesser on timer) */}
+        {showCategory && gameMeta.category && (
           <div className="animate-[reveal_0.5s_ease-out] flex items-center gap-3 border-2 border-[#7BFF6C]/40 bg-[#7BFF6C]/10 px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(123,255,108,0.1)]">
             <span className="font-goldman text-[10px] text-slate-400 uppercase tracking-widest font-bold">Category</span>
             <span className="font-goldman text-sm text-[#7BFF6C] uppercase tracking-[0.2em] font-black italic">
@@ -106,11 +125,13 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
         )}
       </div>
 
-      {/* Hint section with Revealing Animation */}
+      {/* Hint section */}
       <div className="px-2 min-h-[80px]">
-          {shouldShowHint && gameMeta.hints && (
+          {showHint && gameMeta.hints && (
             <div className="flex flex-col gap-2 border border-yellow-500/20 bg-yellow-500/5 p-4 rounded-xl shadow-[inset_0_0_20px_rgba(234,179,8,0.05)]">
-              <span className="font-goldman text-[10px] text-yellow-500/80 uppercase tracking-widest font-bold">Terminal Letter Hint</span>
+              <span className="font-goldman text-[10px] text-yellow-500/80 uppercase tracking-widest font-bold">
+                {isCoder ? "Hint visible to guessers" : "Terminal Letter Hint"}
+              </span>
               <div className="font-mono text-2xl tracking-[0.4em] text-yellow-500 px-1 overflow-hidden whitespace-nowrap border-r-2 border-yellow-500 animate-[typing_3.5s_steps(30,end),blink_0.8s_step-end_infinite]">
                 {gameMeta.hints}
               </div>
@@ -135,7 +156,6 @@ export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
           </select>
       </div>
 
-      {/* Editor Container - Margin Bottom added to clear TimeLeft bar */}
       <div className={`mx-2 mb-16 border-2 rounded-xl overflow-hidden shadow-2xl ${
         isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'
       }`}>
