@@ -1,6 +1,6 @@
 import { useTheme } from "../context/ThemeContext"
 
-export default function AnswerPopup({ isOpen, answer }) {
+export default function AnswerPopup({ answer }) {
   const { isDarkMode } = useTheme()
 
   if (!isOpen) return null

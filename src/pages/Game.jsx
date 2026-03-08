@@ -42,24 +42,24 @@ export default function Game() {
         return ids[nextIndex]
     }
 
-function startRound(players, currentCoder) {
-    if (!players || Object.keys(players).length === 0) return
-    if (!currentCoder) return
+    function startRound(players, currentCoder) {
+        if (!players || Object.keys(players).length === 0) return
+        if (!currentCoder) return
 
-    const randomConcept =
-        concepts[Math.floor(Math.random() * concepts.length)]
+        const randomConcept =
+            concepts[Math.floor(Math.random() * concepts.length)]
 
-    update(ref(db, `rooms/${roomID}`), {
-        concept: randomConcept.word,
-        hints: randomConcept.hints,
-        category: randomConcept.category,
-        roundActive: true,
-        currentCoder: currentCoder,
-        roundStartTime: Date.now(),
-        revealedAnswer: "",
-        code: ""
-    })
-}
+        update(ref(db, `rooms/${roomID}`), {
+            concept: randomConcept.word,
+            hints: randomConcept.hints,
+            category: randomConcept.category,
+            roundActive: true,
+            currentCoder: currentCoder,
+            roundStartTime: Date.now(),
+            revealedAnswer: "",
+            code: ""
+        })
+    }
 
     useEffect(() => {
         const roomRef = ref(db, `rooms/${roomID}`)
@@ -71,11 +71,11 @@ function startRound(players, currentCoder) {
             setRoom(data)
 
             if (!data.roundActive && data.revealedAnswer) {
-    setRevealedAnswer(data.revealedAnswer)
-    setShowAnswerPopup(true)
-} else {
-    setShowAnswerPopup(false)
-}
+                setRevealedAnswer(data.revealedAnswer)
+                setShowAnswerPopup(true)
+            } else {
+                setShowAnswerPopup(false)
+            }
             if (data.roundStartTime) {
                 const elapsed = Math.floor((Date.now() - data.roundStartTime) / 1000)
                 const remaining = ROUND_DURATION - elapsed
@@ -90,8 +90,9 @@ function startRound(players, currentCoder) {
             if (
                 playerList.length > 0 &&
                 !data.roundActive &&
+                !data.revealedAnswer &&
                 playerID === data.currentCoder
-            ) {
+              ) {
                 startRound(data.players, data.currentCoder)
             }
         })
@@ -107,19 +108,37 @@ function startRound(players, currentCoder) {
             const remaining = ROUND_DURATION - elapsed
             setTimeLeft(Math.max(remaining, 0))
 
-if (remaining <= 0 && playerID === room.currentCoder) {
-    const nextCoder = getNextCoder(players, room.currentCoder)
+            if (remaining <= 0 && playerID === room.currentCoder) {
+                const nextCoder = getNextCoder(players, room.currentCoder)
 
-    update(ref(db, `rooms/${roomID}`), {
-        revealedAnswer: room.concept,
-        roundActive: false,
-        currentCoder: nextCoder
-    })
-}
+                update(ref(db, `rooms/${roomID}`), {
+                    revealedAnswer: room.concept,
+                    roundActive: false,
+                    currentCoder: nextCoder
+                })
+            }
         }, 1000)
 
         return () => clearInterval(interval)
     }, [room, players])
+
+    useEffect(() => {
+        if (!showAnswerPopup) return
+      
+        const timer = setTimeout(() => {
+      
+          setShowAnswerPopup(false)
+      
+          // start next round
+          if (playerID === currentCoder) {
+            startRound(players, currentCoder)
+          }
+      
+        }, 5000) // popup duration
+      
+        return () => clearTimeout(timer)
+      
+      }, [showAnswerPopup])
 
     if (!room) {
         return (
@@ -135,7 +154,7 @@ if (remaining <= 0 && playerID === room.currentCoder) {
             {/* Leaderboard */}
             <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
                 <div className={`${colors.accent}`}>
-                    <Leaderboard players={players} currentCoder={currentCoder}/>
+                    <Leaderboard players={players} currentCoder={currentCoder} />
                 </div>
                 <div className="absolute bottom-4 left-4 flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full animate-pulse ${colors.accentBg}`} />
@@ -150,29 +169,31 @@ if (remaining <= 0 && playerID === room.currentCoder) {
                 </div>
 
                 <div className="flex-1 p-2">
-                    <CodeEditor
-                        roomID={roomID}
-                        isCoder={playerID === currentCoder}
-                        ROUND_DURATION={ROUND_DURATION}
+                    {showAnswerPopup ? (<AnswerPopup answer={revealedAnswer} />) :
+                        (<CodeEditor
+                            roomID={roomID}
+                            isCoder={playerID === currentCoder}
+                            ROUND_DURATION={ROUND_DURATION}
 
-                    />
+                        />)
+                    }
                 </div>
 
                 {/* TIMER DISPLAY - Works for both Light and Dark mode */}
                 <div className={`absolute bottom-0 left-0 w-full px-6 py-2 border-t ${colors.border} ${isDarkMode ? 'bg-black/60' : 'bg-white/80'} backdrop-blur-md flex justify-between items-center z-10`}>
-                   <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                         <span className={`text-[10px] font-goldman tracking-[0.2em] opacity-70 ${colors.accent}`}>TIME_LEFT:</span>
                         <span className={`text-xl font-mono font-bold tabular-nums ${timeLeft < 20 ? 'text-red-500 animate-pulse' : colors.accent}`}>
                             {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
                         </span>
-                   </div>
-                   
-                   <div className={`w-48 h-1 ${isDarkMode ? 'bg-white/10' : 'bg-slate-200'} rounded-full overflow-hidden`}>
-                        <div 
+                    </div>
+
+                    <div className={`w-48 h-1 ${isDarkMode ? 'bg-white/10' : 'bg-slate-200'} rounded-full overflow-hidden`}>
+                        <div
                             className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 20 ? 'bg-red-500' : colors.accentBg}`}
                             style={{ width: `${(timeLeft / ROUND_DURATION) * 100}%` }}
                         />
-                   </div>
+                    </div>
                 </div>
             </div>
 
@@ -186,8 +207,6 @@ if (remaining <= 0 && playerID === room.currentCoder) {
                     currentCoder={currentCoder}
                 />
             </div>
-
-            <AnswerPopup isOpen={showAnswerPopup} answer={revealedAnswer} />
 
             <style>{`
                 @keyframes scan {
