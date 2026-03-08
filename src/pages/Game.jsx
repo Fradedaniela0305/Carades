@@ -8,7 +8,7 @@ import AnswerPopup from "../components/AnswerPopUp"
 import Leaderboard from "../components/LeaderBoard"
 import CodeEditor from "../components/CodeEditor"
 import AnswerBox from "../components/AnswerBox"
-import TalkChat from "../components/TalkChat" // Imported TalkChat
+import TalkChat from "../components/TalkChat"
 
 export default function Game() {
     const { roomID } = useParams()
@@ -69,6 +69,7 @@ export default function Game() {
         const unsubscribe = onValue(roomRef, (snapshot) => {
             const data = snapshot.val()
             if (!data) return
+
             setRoom(data)
             setPlayers(data.players || {})
             setCurrentCoder(data.currentCoder || "")
@@ -183,11 +184,7 @@ export default function Game() {
 
             {/* Bottom: TalkChat + AnswerBox */}
             <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 flex gap-6 shadow-lg relative`}>
-                <TalkChat 
-                    roomID={roomID} 
-                    playerID={playerID} 
-                    players={players} 
-                />
+                <TalkChat roomID={roomID} playerID={playerID} players={players} />
                 <div className="flex-1">
                     <AnswerBox
                         roomID={roomID}

@@ -41,6 +41,7 @@ export default function TalkChat({ roomID, playerID, players }) {
       senderID: playerID,
       senderName: players[playerID]?.name || "Anonymous",
       timestamp: serverTimestamp(),
+      type: "chat" // Regular message
     })
     setNewMessage("")
   }
@@ -49,14 +50,26 @@ export default function TalkChat({ roomID, playerID, players }) {
     <div className="flex flex-col h-full w-full max-w-xs border-r border-[#7BFF6C]/20 pr-4">
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-1 mb-2 scrollbar-hide"
+        className="flex-1 overflow-y-auto space-y-2 mb-2 scrollbar-hide"
       >
         {messages.map((msg) => (
-          <div key={msg.id} className="text-[11px] leading-tight">
-            <span className={`font-bold ${msg.senderID === playerID ? (isDarkMode ? 'text-[#7BFF6C]' : 'text-[#39A132]') : 'text-slate-400'}`}>
-              {msg.senderName}: 
-            </span>
-            <span className={`ml-1 ${isDarkMode ? 'text-white/80' : 'text-slate-600'}`}>{msg.text}</span>
+          <div key={msg.id} className={`text-[11px] leading-tight p-1 rounded ${
+            msg.type === "notification" 
+              ? (isDarkMode ? "bg-[#7BFF6C]/10 border-l-2 border-[#7BFF6C]" : "bg-[#39A132]/10 border-l-2 border-[#39A132]")
+              : ""
+          }`}>
+            {msg.type === "notification" ? (
+              <span className={`font-bold italic uppercase tracking-tighter ${isDarkMode ? 'text-[#7BFF6C]' : 'text-[#39A132]'}`}>
+                [ SYSTEM ]: {msg.text}
+              </span>
+            ) : (
+              <>
+                <span className={`font-bold ${msg.senderID === playerID ? (isDarkMode ? 'text-[#7BFF6C]' : 'text-[#39A132]') : 'text-slate-400'}`}>
+                  {msg.senderName}: 
+                </span>
+                <span className={`ml-1 ${isDarkMode ? 'text-white/80' : 'text-slate-600'}`}>{msg.text}</span>
+              </>
+            )}
           </div>
         ))}
       </div>
