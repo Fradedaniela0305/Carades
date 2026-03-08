@@ -1,154 +1,140 @@
-import { useNavigate } from "react-router-dom";
-import { ref, set, serverTimestamp } from "firebase/database";
-import { db } from "../lib/firebase";
-import { useTheme } from "../context/ThemeContext";
+import { useEffect, useRef, useState } from "react"
+import { useParams } from "react-router-dom"
+import { ref, onValue, update } from "firebase/database"
+import { db } from "../lib/firebase"
+import { concepts } from "../data/words"
+import { useTheme } from "../context/ThemeContext"
 
-export default function CreateGroup({ nickname, language, profile, roomId, setRoomId }) {
-  const navigate = useNavigate();
-  const { isDarkMode } = useTheme();
+import Leaderboard from "../components/LeaderBoard"
+import CodeEditor from "../components/CodeEditor"
+import AnswerBox from "../components/AnswerBox"
 
-  // Integrated color palette from PopUp
+export default function Game() {
+  const { roomID } = useParams()
+  const { isDarkMode } = useTheme()
+
+  const [room, setRoom] = useState(null)
+  const [players, setPlayers] = useState({})
+  const [currentCoder, setCurrentCoder] = useState("")
+
+  const playerID = localStorage.getItem("playerID")
+  const isStartingRoundRef = useRef(false)
+
   const colors = {
     bg: isDarkMode ? "bg-black" : "bg-slate-50",
-    pageBg: isDarkMode ? "bg-black" : "bg-slate-200",
-    textMain: isDarkMode ? "text-white" : "text-slate-950",
-    border: isDarkMode ? "border-[#7BFF6C]" : "border-[#39A132]",
-    card: isDarkMode ? "bg-[#7BFF6C]/5 border-[#7BFF6C]/30" : "bg-white border-slate-300 shadow-sm",
-    footer: isDarkMode ? "bg-[#7BFF6C]/5" : "bg-slate-200/60",
-    accentText: isDarkMode ? "text-[#7BFF6C]" : "text-[#39A132]",
-    accentBg: isDarkMode ? "bg-[#7BFF6C]" : "bg-[#39A132]",
-    button: isDarkMode 
-      ? "border-[#7BFF6C] text-[#7BFF6C] hover:bg-[#7BFF6C] hover:text-black" 
-      : "border-[#39A132] text-[#39A132] hover:bg-[#39A132] hover:text-white"
-  };
+    card: isDarkMode ? "bg-black/40" : "bg-white",
+    border: isDarkMode ? "border-[#7BFF6C]/30" : "border-slate-300",
+    accent: isDarkMode ? "text-[#7BFF6C]" : "text-[#39A132]",
+    accentBg: isDarkMode ? "bg-[#7BFF6C]" : "bg-[#39A132]"
+  }
 
-  function generateRoomCode(length = 6) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < length; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)];
+  async function startRound(players, currentCoder) {
+    if (!players || Object.keys(players).length === 0) return
+    if (!currentCoder) return
+    if (isStartingRoundRef.current) return
+
+    isStartingRoundRef.current = true
+
+    try {
+      const randomConcept = concepts[Math.floor(Math.random() * concepts.length)]
+
+      await update(ref(db, `rooms/${roomID}`), {
+        concept: randomConcept.word,
+        hints: randomConcept.hints,
+        category: randomConcept.category,
+        roundActive: true,
+        currentCoder: currentCoder
+      })
+    } catch (error) {
+      console.error("Failed to start round:", error)
+    } finally {
+      isStartingRoundRef.current = false
     }
-    return code;
   }
 
-async function createGroup() {
-  if (!nickname || !language || !profile) {
-    alert("Please complete your profile before creating a group.");
-    return;
+  useEffect(() => {
+    const roomRef = ref(db, `rooms/${roomID}`)
+
+    const unsubscribe = onValue(roomRef, (snapshot) => {
+      const data = snapshot.val()
+
+      if (!data) {
+        setRoom(null)
+        setPlayers({})
+        setCurrentCoder("")
+        return
+      }
+
+      setRoom(data)
+      setPlayers(data.players || {})
+      setCurrentCoder(data.currentCoder || "")
+
+      const playerList = Object.keys(data.players || {})
+
+      if (
+        playerID &&
+        playerList.length > 0 &&
+        !data.roundActive &&
+        data.currentCoder &&
+        playerID === data.currentCoder
+      ) {
+        startRound(data.players, data.currentCoder)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [roomID, playerID])
+
+  if (!room) {
+    return (
+      <div className={`h-screen w-screen flex items-center justify-center font-goldman ${colors.bg} ${colors.accent}`}>
+        INITIALIZING_SESSION...
+      </div>
+    )
   }
-
-  const roomCode = generateRoomCode();
-  const playerId = crypto.randomUUID();
-
-  await set(ref(db, `rooms/${roomCode}`), {
-    language: language,
-    createdAt: serverTimestamp(),
-    players: {
-      [playerId]: {
-        name: nickname,
-        score: 0,
-        language: language,
-        profile: profile,
-      },
-    },
-    currentCoder: playerId,
-    concept: "",
-    roundActive: false,
-  });
-
-  setRoomId(roomCode);
-  navigate(`/rooms/${roomCode}/popup`);
-}
 
   return (
-    <div className={`min-h-screen min-w-screen ${colors.pageBg} flex items-center justify-center p-6 transition-colors duration-400`}>
-      <div className={`relative w-full max-w-[520px] ${colors.bg} border-2 ${colors.border} rounded-2xl shadow-xl overflow-hidden transition-all duration-300`}>
-
-        {/* Top Scanning Bar */}
-        <div className={`h-1 w-full ${isDarkMode ? 'bg-[#7BFF6C]/10' : 'bg-slate-200'} relative overflow-hidden`}>
-          <div className={`absolute inset-0 w-1/3 animate-[scan_2s_linear_infinite] ${colors.accentBg}`} />
-        </div>
-
-        <div className="p-10">
-          {/* Title Section */}
-          <div className="flex flex-col items-center mb-10">
-            <h2 className={`font-goldman text-4xl tracking-widest uppercase italic font-bold ${colors.textMain}`}>
-              Create Group
-            </h2>
-            <div className={`h-[3px] w-28 mt-2 ${colors.accentBg} ${isDarkMode ? 'shadow-[0_0_10px_#7BFF6C]' : ''}`} />
-          </div>
-
-          <div className="font-goldman space-y-6">
-            {/* Player Summary Card */}
-            <div className={`border rounded-xl p-6 ${colors.card}`}>
-              <div className="flex items-center gap-5 mb-6">
-                <div className={`w-16 h-16 rounded-full border-2 ${colors.border} ${isDarkMode ? 'bg-black' : 'bg-slate-50'} flex items-center justify-center text-3xl shadow-sm`}>
-                  {profile}
-                </div>
-
-                <div className="flex flex-col">
-                  <span className={`${colors.accentText} uppercase tracking-[0.2em] text-[10px] font-bold`}>
-                    HOST_PROFILE
-                  </span>
-                  <span className={`${colors.textMain} text-xl font-bold`}>
-                    {nickname || "Unknown Player"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-4 text-sm tracking-wide">
-                <div className={`flex justify-between border-b ${isDarkMode ? 'border-[#7BFF6C]/10' : 'border-slate-100'} pb-2`}>
-                  <span className={`${colors.accentText} uppercase text-xs`}>ID_IDENTIFIER</span>
-                  <span className={colors.textMain}>{nickname || "—"}</span>
-                </div>
-
-                <div className={`flex justify-between border-b ${isDarkMode ? 'border-[#7BFF6C]/10' : 'border-slate-100'} pb-2`}>
-                  <span className={`${colors.accentText} uppercase text-xs`}>REGION_LANG</span>
-                  <span className={`${colors.textMain} capitalize`}>{language || "—"}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className={`${colors.accentText} uppercase text-xs`}>AVATAR_TYPE</span>
-                  <span className={`${colors.textMain} text-xl leading-none`}>{profile}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Launch Button */}
-            <div className="mt-12 flex justify-center">
-              <button
-                onClick={createGroup}
-                className={`group relative px-12 py-4 border-2 font-goldman font-extrabold uppercase tracking-[0.2em] transition-all active:scale-95 ${colors.button}`}
-              >
-                Launch Group
-                {/* Visual Corner Accents */}
-                <div className={`absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 ${colors.border}`} />
-                <div className={`absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 ${colors.border}`} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Status Footer */}
-        <div className={`${colors.footer} py-3 px-8 flex justify-between items-center border-t ${isDarkMode ? 'border-[#7BFF6C]/10' : 'border-slate-200'}`}>
-          <span className={`text-[10px] font-mono tracking-tighter ${isDarkMode ? "text-[#7BFF6C]/40" : "text-slate-500"}`}>
-            v1.0.0 // STATUS: READY_TO_INITIALIZE
+    <div className={`h-screen w-screen grid grid-cols-[320px_1fr] grid-rows-[1fr_140px] gap-4 p-4 ${colors.bg} transition-colors duration-300`}>
+      
+      <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
+        <Leaderboard players={players} />
+        
+        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full animate-pulse ${colors.accentBg}`} />
+          <span className={`text-[9px] font-mono uppercase tracking-tighter ${colors.accent}`}>
+            ID: {roomID}
           </span>
-          <div className="flex gap-1.5 items-center">
-            <span className={`text-[9px] font-goldman tracking-tight ${colors.accentText}`}>
-              SESSION_PENDING
-            </span>
-            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${colors.accentBg}`} />
-          </div>
         </div>
+      </div>
+
+      <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm overflow-hidden flex flex-col relative`}>
+        <div className="h-1 w-full bg-white/5 relative overflow-hidden">
+          <div className={`absolute inset-0 w-1/4 animate-[scan_3s_linear_infinite] ${colors.accentBg}`} />
+        </div>
+
+        <div className="flex-1 p-2">
+          <CodeEditor
+            concept={room.concept}
+            isCoder={playerID === currentCoder}
+          />
+        </div>
+      </div>
+
+      <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 flex items-center shadow-lg relative`}>
+        <AnswerBox
+          roomID={roomID}
+          concept={room.concept}
+          players={players}
+          playerID={playerID}
+        />
       </div>
 
       <style>{`
         @keyframes scan {
           0% { transform: translateX(-100%); }
-          100% { transform: translateX(300%); }
+          100% { transform: translateX(400%); }
         }
       `}</style>
     </div>
-  );
+  )
 }

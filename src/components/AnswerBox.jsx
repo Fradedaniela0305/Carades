@@ -3,43 +3,69 @@ import { ref, update } from "firebase/database"
 import { db } from "../lib/firebase"
 
 export default function AnswerBox({ roomID, concept, playerID, players }) {
+  const [answer, setAnswer] = useState("")
 
-    const [answer, setAnswer] = useState("")
+  async function submitAnswer() {
+    const cleanedAnswer = answer.trim().toLowerCase()
+    const cleanedConcept = concept?.trim().toLowerCase()
 
-    function submitAnswer() {
-        if (!answer.trim()) return
+    if (!cleanedAnswer) return
 
-        if (answer.trim().toLowerCase() === concept.trim().toLowerCase()) {
-
-            const currentScore = players[playerID]?.score || 0
-
-            update(ref(db, `rooms/${roomID}/players/${playerID}`), {
-                score: currentScore + 1
-            })
-
-            alert("Correct!")
-        }
-
-        setAnswer("")
+    if (!playerID) {
+      console.error("Missing playerID in AnswerBox")
+      return
     }
 
-    function handleKeyDown(e) {
-        if (e.key === "Enter") {
-            submitAnswer()
-        }
+    if (!roomID) {
+      console.error("Missing roomID in AnswerBox")
+      return
     }
 
-    return (
-        <div className="p-4">
+    if (!cleanedConcept) {
+      console.error("Missing concept in AnswerBox")
+      return
+    }
 
-            <input
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your guess and press Enter..."
-                className="border p-2 w-full"
-            />
+    if (!players[playerID]) {
+      console.error("Player not found in players object", {
+        playerID,
+        players
+      })
+      return
+    }
 
-        </div>
-    )
+    if (cleanedAnswer === cleanedConcept) {
+      const currentScore = players[playerID]?.score || 0
+
+      try {
+        await update(ref(db, `rooms/${roomID}/players/${playerID}`), {
+          score: currentScore + 1
+        })
+
+        alert("Correct!")
+      } catch (error) {
+        console.error("Failed to update score:", error)
+      }
+    }
+
+    setAnswer("")
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      submitAnswer()
+    }
+  }
+
+  return (
+    <div className="p-4">
+      <input
+        value={answer}
+        onChange={(e) => setAnswer(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="Type your guess and press Enter..."
+        className="border p-2 w-full"
+      />
+    </div>
+  )
 }
