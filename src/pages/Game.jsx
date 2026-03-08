@@ -156,6 +156,23 @@ export default function Game() {
                         isCoder={playerID === currentCoder}
                     />
                 </div>
+
+                {/* TIMER DISPLAY - Positioned at bottom of IDE */}
+                <div className={`absolute bottom-0 left-0 w-full px-6 py-2 border-t ${colors.border} bg-black/60 backdrop-blur-md flex justify-between items-center z-10`}>
+                   <div className="flex items-center gap-3">
+                        <span className={`text-[10px] font-goldman tracking-[0.2em] opacity-70 ${colors.accent}`}>TIME_LEFT:</span>
+                        <span className={`text-xl font-mono font-bold tabular-nums ${timeLeft < 20 ? 'text-red-500 animate-pulse' : colors.accent}`}>
+                            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                        </span>
+                   </div>
+                   {/* Mini Progress Bar */}
+                   <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                            className={`h-full transition-all duration-1000 ease-linear ${timeLeft < 20 ? 'bg-red-500' : colors.accentBg}`}
+                            style={{ width: `${(timeLeft / ROUND_DURATION) * 100}%` }}
+                        />
+                   </div>
+                </div>
             </div>
 
             {/* Guessing / Answer Interface */}
