@@ -16,7 +16,7 @@ export default function Game() {
     const [room, setRoom] = useState(null)
     const [players, setPlayers] = useState({})
     const [currentCoder, setCurrentCoder] = useState("")
-    const ROUND_DURATION = 120 // seconds
+    const ROUND_DURATION = 30 // seconds
     const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
 
     const [showAnswerPopup, setShowAnswerPopup] = useState(false)
@@ -153,6 +153,8 @@ if (remaining <= 0 && playerID === room.currentCoder) {
                     <CodeEditor
                         roomID={roomID}
                         isCoder={playerID === currentCoder}
+                        ROUND_DURATION={ROUND_DURATION}
+
                     />
                 </div>
 

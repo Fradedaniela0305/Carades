@@ -17,7 +17,7 @@ const commentMap = {
   sql: "-- write your code hint here"
 }
 
-export default function CodeEditor({ roomID, isCoder }) {
+export default function CodeEditor({ roomID, isCoder, ROUND_DURATION }) {
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState(commentMap["javascript"])
   const { isDarkMode } = useTheme()
@@ -54,8 +54,8 @@ export default function CodeEditor({ roomID, isCoder }) {
     return () => clearInterval(interval)
   }, [gameMeta.startTime])
 
-  const shouldShowCategory = elapsed >= 45
-  const shouldShowHint = elapsed >= 90
+  const shouldShowCategory = elapsed >= ROUND_DURATION * 1 / 3
+  const shouldShowHint = elapsed >= ROUND_DURATION * 2 / 3
 
   function handleLanguageChange(e) {
     const newLang = e.target.value
