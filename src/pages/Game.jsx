@@ -135,7 +135,7 @@ export default function Game() {
             <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
 
                 <div className={`${colors.accent}`}>
-                    <Leaderboard players={players} />
+                    <Leaderboard players={players} currentCoder={currentCoder}/>
                 </div>
 
                 <div className="absolute bottom-4 left-4 flex items-center gap-2">

@@ -1,4 +1,4 @@
-export default function Leaderboard({ players = {} }) {
+export default function Leaderboard({ players = {}, currentCoder }) {
 
     const playerArray = Object.entries(players).map(([id, player]) => ({
       id,
@@ -14,24 +14,47 @@ export default function Leaderboard({ players = {} }) {
           Leaderboard
         </h2>
   
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col">
   
-          {sortedPlayers.map((player, index) => (
-            <li
-              key={player.id}
-              className="flex justify-between border-b pb-1"
-            >
+          {sortedPlayers.map((player) => {
   
-              <span>
-                {index + 1}. {player.name}
-              </span>
+            const isCoder = player.id === currentCoder
   
-              <span className="font-bold">
-                {player.score}
-              </span>
+            const ringColor = isCoder
+              ? ""
+              : "border-gray-400 text-gray-400"
   
-            </li>
-          ))}
+            return (
+              <li
+                key={player.id}
+                className="flex justify-between items-center border-b border-gray-400/40 py-2"
+              >
+  
+                <div className="flex items-center gap-3">
+  
+                  {/* Avatar */}
+                  <div
+                    className={`w-9 h-9 flex items-center justify-center rounded-full text-lg border-2 ${ringColor}`}
+                  >
+                    {player.profile}
+                  </div>
+  
+                  {/* Name */}
+                  <span className={`transition-all ${ringColor}`}>
+                    {player.name} {isCoder && "🖉"}
+                  </span>
+  
+                </div>
+  
+                {/* Score */}
+                <span className="font-bold">
+                  {player.score}
+                </span>
+  
+              </li>
+            )
+  
+          })}
   
         </ul>
   
