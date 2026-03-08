@@ -99,6 +99,56 @@ export const concepts = [
         word: "underfitting",
         category: "machine learning",
         hints: "u _ d _ _ _ _ _ _ _ _ _"
+    },
+    {
+    word: "bubble sort",
+    category: "algorithm",
+    hints: "b _ _ _ _ e   s _ _ _"
+    },
+    {
+    word: "fibonacci",
+    category: "algorithm",
+    hints: "f _ _ _ _ _ _ _ i"
+    },
+    {
+    word: "fizzbuzz",
+    category: "algorithm",
+    hints: "f _ _ _ b _ _ _"
+    },
+    {
+    word: "inheritance",
+    category: "programming concept",
+    hints: "i _ _ _ _ _ _ _ _ _ e"
+    },
+    {
+    word: "encapsulation",
+    category: "programming concept",
+    hints: "e _ _ _ _ _ _ _ _ _ _ _ n"
+    },
+    {
+    word: "async await",
+    category: "programming concept",
+    hints: "a _ _ _ _   a _ _ _ _"
+    },
+    {
+    word: "factorial",
+    category: "mathematics",
+    hints: "f _ _ _ _ _ _ _ l"
+    },
+    {
+    word: "bitwise operator",
+    category: "programming concept",
+    hints: "b _ _ _ _ _ e   o _ _ _ _ _ _ r"
+    },
+    {
+    word: "prime numbers",
+    category: "algorithm",
+    hints: "p _ _ _ e   n _ _ _ _ _ s"
+    },
+    {
+    word: "gcd",
+    category: "algorithm",
+    hints: "g _ d"
     }
 
 ]
