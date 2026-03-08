@@ -1,25 +1,20 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "firebase/app"
+import { getAnalytics } from "firebase/analytics"
 import { getDatabase } from "firebase/database"
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAYDz2UpP4MjxGbJM94ajKJ79W2bRUqZ8E",
-  authDomain: "carades-a825b.firebaseapp.com",
-  projectId: "carades-a825b",
-  storageBucket: "carades-a825b.firebasestorage.app",
-  messagingSenderId: "712261045822",
-  appId: "1:712261045822:web:1263590932f9b8f2024b6f",
-  measurementId: "G-JBKHKMTP6T",
-  databaseURL: 'https://carades-a825b-default-rtdb.firebaseio.com/'
-};
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const app = initializeApp(firebaseConfig)
+
+const analytics = getAnalytics(app)
+
 export const db = getDatabase(app)
