@@ -160,12 +160,12 @@ export default function Game() {
                 !nextRoundStartedRef.current
             ) {
                 nextRoundStartedRef.current = true
-                startRound(players, currentCoder)
+                startRound(room.players, currentCoder)
             }
         }, 5000)
 
         return () => clearTimeout(timer)
-    }, [showAnswerPopup, playerID, currentCoder, room, players])
+    }, [showAnswerPopup])
 
     if (!room) {
         return (
