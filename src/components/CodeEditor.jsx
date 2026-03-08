@@ -18,32 +18,25 @@ const commentMap = {
 }
 
 export default function CodeEditor({ roomID, isCoder }) {
-
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState(commentMap["javascript"])
   const { isDarkMode } = useTheme()
 
   // Listen for code changes from Firebase
   useEffect(() => {
-
     const roomRef = ref(db, `rooms/${roomID}`)
-
-    const unsubscribe = onValue(roomRef, snapshot => {
-
+    const unsubscribe = onValue(roomRef, (snapshot) => {
       const data = snapshot.val()
       if (!data) return
 
       if (data.code !== undefined) setCode(data.code)
       if (data.language) setLanguage(data.language)
-
     })
 
     return () => unsubscribe()
-
   }, [roomID])
 
   function handleLanguageChange(e) {
-
     const newLang = e.target.value
     setLanguage(newLang)
     setCode(commentMap[newLang])
@@ -54,11 +47,9 @@ export default function CodeEditor({ roomID, isCoder }) {
         code: commentMap[newLang]
       })
     }
-
   }
 
   function handleCodeChange(value) {
-
     const newCode = value || ""
     setCode(newCode)
 
@@ -67,12 +58,13 @@ export default function CodeEditor({ roomID, isCoder }) {
         code: newCode
       })
     }
-
   }
 
   return (
-    <div className="flex flex-col gap-3">
-
+    /* Changed mt-8 to mt-22 to move the component down further */
+    <div className="mt-22 flex flex-col gap-6">
+      
+      {/* Language Selector */}
       <select
         value={language}
         onChange={handleLanguageChange}
@@ -95,12 +87,13 @@ export default function CodeEditor({ roomID, isCoder }) {
         <option value="sql">SQL</option>
       </select>
 
+      {/* Editor Container */}
       <div className={`border-2 rounded-xl overflow-hidden ${
         isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'
       }`}>
-
         <Editor
-          height="250px"
+          /* Increased height to 600px to make the IDE longer lengthwise */
+          height="400px"
           width="100%"
           language={language}
           value={code}
@@ -114,7 +107,6 @@ export default function CodeEditor({ roomID, isCoder }) {
             readOnly: !isCoder
           }}
         />
-
       </div>
     </div>
   )
