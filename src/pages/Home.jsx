@@ -34,6 +34,14 @@ function Home() {
                     <button>Pop Up</button>
                 </Link>
 
+                <Link to="/joinroom">
+                    <button>Join Room</button>
+                </Link>
+
+                <Link to="/createroom">
+                    <button>Create Room</button>
+                </Link>
+
             </div>
 
         </div>

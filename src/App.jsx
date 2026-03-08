@@ -8,6 +8,8 @@ import Leaderboard from "./components/Leaderboard"
 import GuessChat from "./components/GuessChat"
 import CodeEditor from "./components/CodeEditor"
 import PopUp from "./pages/PopUp"
+import JoinGroup from "./pages/JoinGroup";
+import CreateGroup from "./pages/CreateGroup";
 
 function App() {
     const [nickname, setNickname] = useState("");
@@ -36,6 +38,10 @@ function App() {
 
             <Route path="/popup" element={<PopUp />} />
 
+            <Route path="/joinroom" element={<JoinGroup/>}/>
+
+            <Route path="/createroom" element={<CreateGroup/>}/>
+            
         </Routes>
     )
 }
