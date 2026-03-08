@@ -109,7 +109,7 @@ export default function CodeEditor({ roomID, isCoder }) {
         isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'
       }`}>
         <Editor
-          height="600px"
+          height="480px"
           width="100%"
           language={language}
           value={code}
