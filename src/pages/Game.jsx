@@ -229,6 +229,7 @@ export default function Game() {
                     players={players}
                     playerID={playerID}
                     currentCoder={currentCoder}
+                    isCoder = {playerID === currentCoder}
                 />
             </div>
 
