@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { ref, onValue } from "firebase/database"
+import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
 
 import Leaderboard from "../components/LeaderBoard"
 import CodeEditor from "../components/CodeEditor"
 import AnswerBox from "../components/AnswerBox"
+
+const words = [
+  "binary search",
+  "recursion",
+  "hash map",
+  "linked list",
+  "bubble sort",
+  "stack",
+  "queue"
+]
 
 export default function Game() {
 
@@ -13,23 +23,64 @@ export default function Game() {
 
   const [room, setRoom] = useState(null)
   const [players, setPlayers] = useState({})
+  const [currentCoder, setCurrentCoder] = useState("")
 
-  // MVP: store playerID locally
   const playerID = localStorage.getItem("playerID")
 
+  function getNextCoder(players, currentCoder) {
+    const ids = Object.keys(players)
+
+    if (ids.length === 0) return null
+
+    const index = ids.indexOf(currentCoder)
+
+    const nextIndex = (index + 1) % ids.length
+
+    return ids[nextIndex]
+  }
+
+  function startRound(players, currentCoder) {
+
+    if (!players || Object.keys(players).length === 0) return
+
+    const randomWord = words[Math.floor(Math.random() * words.length)]
+
+    const nextCoder = getNextCoder(players, currentCoder)
+
+    update(ref(db, `rooms/${roomID}`), {
+      concept: randomWord,
+      roundActive: true,
+      currentCoder: nextCoder
+    })
+  }
+
   useEffect(() => {
+
     const roomRef = ref(db, `rooms/${roomID}`)
 
     const unsubscribe = onValue(roomRef, (snapshot) => {
+
       const data = snapshot.val()
 
       if (!data) return
 
       setRoom(data)
       setPlayers(data.players || {})
+      setCurrentCoder(data.currentCoder)
+
+      // start new round if none active
+      if (
+        !data.roundActive &&
+        !data.concept &&
+        playerID === data.currentCoder
+      ) {
+        startRound(data.players, data.currentCoder)
+      }
+
     })
 
     return () => unsubscribe()
+
   }, [roomID])
 
   if (!room) {
@@ -38,18 +89,21 @@ export default function Game() {
 
   return (
     <div className="h-screen w-screen grid grid-cols-[260px_1fr] grid-rows-[1fr_120px] gap-4 p-4 bg-black text-white">
-  
-      {/* Leaderboard (left side) */}
+
+      {/* Leaderboard */}
       <div className="row-span-2 border rounded p-3 overflow-y-auto">
         <Leaderboard players={players} />
       </div>
-  
-      {/* Code editor (top right) */}
+
+      {/* Code editor */}
       <div className="border rounded p-3 overflow-hidden">
-        <CodeEditor />
+        <CodeEditor
+          concept={room.concept}
+          isCoder={playerID === currentCoder}
+        />
       </div>
-  
-      {/* Guess input (bottom right) */}
+
+      {/* Guess box */}
       <div className="border rounded p-3 flex items-center">
         <AnswerBox
           roomID={roomID}
@@ -58,8 +112,7 @@ export default function Game() {
           playerID={playerID}
         />
       </div>
-  
+
     </div>
-  
   )
 }
