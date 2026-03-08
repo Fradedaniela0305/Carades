@@ -22,6 +22,7 @@ function App() {
     const [nickname, setNickname] = useState("");
     const [language, setLanguage] = useState("english");
     const [profile, setProfile] = useState("🐱");
+    const [roomId, setRoomId] = useState("");
 
     return (
         <ThemeProvider>
@@ -39,7 +40,8 @@ function App() {
                     profile={profile}
                     setProfile={setProfile} />} />
 
-                <Route path="/game" element={<Game />} />
+                <Route path="/game" element={<Game 
+                roomId={roomId}/>} />
 
                 <Route path="/leaderboard" element={<LeaderBoard />} />
 
@@ -53,12 +55,16 @@ function App() {
                     playerName={nickname}
                     playerLanguage={language}
                     playerProfile={profile}
+                    roomId={roomId}
+                    setRoomId={setRoomId}
                 />} />
 
                 <Route path="/createroom" element={<CreateGroup
                     nickname={nickname}
                     language={language}
-                    profile={profile} />} />
+                    profile={profile}
+                    roomId={roomId}
+                    setRoomId={setRoomId} />} />
             </Routes>
         </ThemeProvider>
     )
