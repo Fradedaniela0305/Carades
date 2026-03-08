@@ -1,7 +1,11 @@
-// Minimal code for leaderboard: NEED TESTS 
-export default function Leaderboard({ players }) {
+export default function Leaderboard({ players = {} }) {
 
-    const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
+    const playerArray = Object.entries(players).map(([id, player]) => ({
+      id,
+      ...player
+    }))
+  
+    const sortedPlayers = playerArray.sort((a, b) => b.score - a.score)
   
     return (
       <div className="p-4 border rounded w-64">
@@ -14,7 +18,7 @@ export default function Leaderboard({ players }) {
   
           {sortedPlayers.map((player, index) => (
             <li
-              key={player.name}
+              key={player.id}
               className="flex justify-between border-b pb-1"
             >
   
