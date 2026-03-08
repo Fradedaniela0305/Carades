@@ -40,22 +40,22 @@ export default function Game() {
         return ids[nextIndex]
     }
 
-function startRound(players, currentCoder) {
-  if (!players || Object.keys(players).length === 0) return
-  if (!currentCoder) return
+    function startRound(players, currentCoder) {
+        if (!players || Object.keys(players).length === 0) return
+        if (!currentCoder) return
 
-  const randomConcept =
-    concepts[Math.floor(Math.random() * concepts.length)]
+        const randomConcept =
+            concepts[Math.floor(Math.random() * concepts.length)]
 
-  update(ref(db, `rooms/${roomID}`), {
-    concept: randomConcept.word,
-    hints: randomConcept.hints,
-    category: randomConcept.category,
-    roundActive: true,
-    currentCoder: currentCoder,
-    roundStartTime: Date.now()
-  })
-}
+        update(ref(db, `rooms/${roomID}`), {
+            concept: randomConcept.word,
+            hints: randomConcept.hints,
+            category: randomConcept.category,
+            roundActive: true,
+            currentCoder: currentCoder,
+            roundStartTime: Date.now()
+        })
+    }
 
     useEffect(() => {
         const roomRef = ref(db, `rooms/${roomID}`)
@@ -66,12 +66,12 @@ function startRound(players, currentCoder) {
 
             setRoom(data)
             if (data.roundStartTime) {
-  const elapsed = Math.floor((Date.now() - data.roundStartTime) / 1000)
-  const remaining = ROUND_DURATION - elapsed
-  setTimeLeft(Math.max(remaining, 0))
-} else {
-  setTimeLeft(ROUND_DURATION)
-}
+                const elapsed = Math.floor((Date.now() - data.roundStartTime) / 1000)
+                const remaining = ROUND_DURATION - elapsed
+                setTimeLeft(Math.max(remaining, 0))
+            } else {
+                setTimeLeft(ROUND_DURATION)
+            }
             setPlayers(data.players || {})
             setCurrentCoder(data.currentCoder)
 
@@ -152,7 +152,7 @@ function startRound(players, currentCoder) {
 
                 <div className="flex-1 p-2">
                     <CodeEditor
-                        concept={room.concept}
+                        roomID={roomID}
                         isCoder={playerID === currentCoder}
                     />
                 </div>
