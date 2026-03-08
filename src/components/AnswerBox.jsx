@@ -4,13 +4,13 @@ import { db } from "../lib/firebase"
 import { useTheme } from "../context/ThemeContext"
 
 // Added isCoder to the props
-export default function AnswerBox({ roomID, concept, playerID, players, isCoder, currentCoder}) {
+export default function AnswerBox({ roomID, concept, playerID, players, currentCoder, isCoder}) {
   const [answer, setAnswer] = useState("")
   const { isDarkMode } = useTheme()
 
   async function submitAnswer() {
     // Safety check: Don't allow submission if the player is the coder
-    if (isCoder) return
+    if (playerID == currentCoder) return
 
     const cleanedAnswer = answer.trim().toLowerCase()
     const cleanedConcept = concept?.trim().toLowerCase()
