@@ -3,135 +3,150 @@ import { useNavigate } from "react-router-dom"
 import { ref, onValue, set, get } from "firebase/database"
 import { db } from "../lib/firebase"
 
-export default function JoinGroup({ playerName }) {
+export default function JoinGroup({ playerName, playerLanguage, playerProfile }) {
 
-    const [rooms, setRooms] = useState([])
-    const [roomCode, setRoomCode] = useState("")
-    const navigate = useNavigate()
+  const [rooms, setRooms] = useState([])
+  const [roomCode, setRoomCode] = useState("")
+  const navigate = useNavigate()
 
-    useEffect(() => {
+  useEffect(() => {
 
-        const roomsRef = ref(db, "rooms")
+    const roomsRef = ref(db, "rooms")
 
-        onValue(roomsRef, snapshot => {
+    const unsubscribe = onValue(roomsRef, snapshot => {
 
-            const data = snapshot.val()
+      const data = snapshot.val()
 
-            // Uncomment after adding full navigation/routing
-            //   if (!playerName) {
-            //     navigate("/")
-            //   }
+      if (!data) {
+        setRooms([])
+        return
+      }
 
-            if (!data) {
-                setRooms([])
-                return
-            }
+      const roomList = Object.entries(data).map(([roomId, room]) => ({
+        id: roomId,
+        language: room.language,
+        playerCount: room.players ? Object.keys(room.players).length : 0,
+        roundActive: room.roundActive
+      }))
 
-            const roomList = Object.entries(data).map(([id, room]) => ({
-                id,
-                playerCount: room.players ? Object.keys(room.players).length : 0
-            }))
+      setRooms(roomList)
 
-            setRooms(roomList)
+    })
 
-        })
+    return () => unsubscribe()
 
-    }, [])
+  }, [])
 
-    async function joinRoom(roomId) {
+  // Filter rooms by player language
+  const filteredRooms = rooms.filter(
+    room => room.language === playerLanguage
+  )
 
-        const playerId = crypto.randomUUID()
+  async function joinRoom(roomId) {
 
-        await set(ref(db, `rooms/${roomId}/players/${playerId}`), {
-            name: playerName,
-            score: 0
-        })
+    const playerId = crypto.randomUUID()
 
-        navigate(`/room/${roomId}`)
+    await set(ref(db, `rooms/${roomId}/players/${playerId}`), {
+      name: playerName,
+      score: 0,
+      language: playerLanguage,
+      profile: playerProfile
+    })
+
+    navigate(`/room/${roomId}`)
+  }
+
+  async function joinByCode() {
+
+    if (!roomCode) return
+
+    const roomRef = ref(db, `rooms/${roomCode}`)
+    const snapshot = await get(roomRef)
+
+    if (!snapshot.exists()) {
+      alert("Room not found")
+      return
     }
 
-    async function joinByCode() {
+    const playerId = crypto.randomUUID()
 
-        if (!roomCode) return
+    await set(ref(db, `rooms/${roomCode}/players/${playerId}`), {
+      name: playerName,
+      score: 0,
+      language: playerLanguage,
+      profile: playerProfile
+    })
 
-        const roomRef = ref(db, `rooms/${roomCode}`)
-        const snapshot = await get(roomRef)
+    navigate(`/room/${roomCode}`)
+  }
 
-        if (!snapshot.exists()) {
-            alert("Room does not exist")
-            return
-        }
+  return (
 
-        const playerId = crypto.randomUUID()
+    <div className="p-10 flex flex-col gap-6 max-w-lg">
 
-        await set(ref(db, `rooms/${roomCode}/players/${playerId}`), {
-            name: playerName,
-            score: 0
-        })
+      <h1 className="text-2xl font-bold">
+        Join a Game
+      </h1>
 
-        navigate(`/room/${roomCode}`)
-    }
+      <p className="text-gray-500">
+        Showing rooms for: {playerLanguage}
+      </p>
 
-    return (
+      {/* Join by room code */}
 
-        <div className="p-10 flex flex-col gap-6 max-w-lg">
+      <div className="flex gap-2">
 
-            <h1 className="text-2xl font-bold">
-                Join a Game
-            </h1>
+        <input
+          className="border p-2 flex-1"
+          placeholder="Enter room code"
+          value={roomCode}
+          onChange={(e) => setRoomCode(e.target.value)}
+        />
 
-            {/* Join by room code */}
+        <button
+          className="bg-blue-500 text-white px-4 rounded"
+          onClick={joinByCode}
+        >
+          Join
+        </button>
 
-            <div className="flex gap-2">
-
-                <input
-                    className="border p-2 flex-1"
-                    placeholder="Enter room code"
-                    value={roomCode}
-                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                />
-
-                <button
-                    className="bg-blue-500 text-white px-4 rounded"
-                    onClick={joinByCode}
-                >
-                    Join
-                </button>
-
-            </div>
+      </div>
 
 
-            {/* Public rooms list */}
+      {/* Public rooms list */}
 
-            <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
 
-                <h2 className="text-xl font-semibold">
-                    Public Rooms
-                </h2>
+        <h2 className="text-xl font-semibold">
+          Available Rooms
+        </h2>
 
-                {rooms.length === 0 && (
-                    <p>No active rooms</p>
-                )}
+        {filteredRooms.length === 0 && (
+          <p>No rooms available</p>
+        )}
 
-                {rooms.map(room => (
+        {filteredRooms.map(room => (
 
-                    <button
-                        key={room.id}
-                        className="border p-3 rounded flex justify-between hover:bg-gray-100"
-                        onClick={() => joinRoom(room.id)}
-                    >
+          <button
+            key={room.id}
+            className="border p-3 rounded flex justify-between hover:bg-gray-100"
+            onClick={() => joinRoom(room.id)}
+          >
 
-                        <span>Room {room.id}</span>
+            <span>
+              Room {room.id}
+            </span>
 
-                        <span>{room.playerCount} players</span>
+            <span>
+              {room.playerCount} players
+            </span>
 
-                    </button>
+          </button>
 
-                ))}
+        ))}
 
-            </div>
+      </div>
 
-        </div>
-
-    )
+    </div>
+  )
 }
