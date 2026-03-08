@@ -56,7 +56,8 @@ function startRound(players, currentCoder) {
         roundActive: true,
         currentCoder: currentCoder,
         roundStartTime: Date.now(),
-        revealedAnswer: ""
+        revealedAnswer: "",
+        code: ""
     })
 }
 
