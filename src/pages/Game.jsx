@@ -37,22 +37,29 @@ export default function Game() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-
-      {/* Leaderboard */}
-      <Leaderboard players={players} />
-
-      {/* Code hint editor */}
-      <CodeEditor />
-
-      {/* Guess input */}
-      <AnswerBox
-        roomID={roomID}
-        concept={room.concept}
-        players={players}
-        playerID={playerID}
-      />
-
+    <div className="h-screen w-screen grid grid-cols-[260px_1fr] grid-rows-[1fr_120px] gap-4 p-4 bg-black text-white">
+  
+      {/* Leaderboard (left side) */}
+      <div className="row-span-2 border rounded p-3 overflow-y-auto">
+        <Leaderboard players={players} />
+      </div>
+  
+      {/* Code editor (top right) */}
+      <div className="border rounded p-3 overflow-hidden">
+        <CodeEditor />
+      </div>
+  
+      {/* Guess input (bottom right) */}
+      <div className="border rounded p-3 flex items-center">
+        <AnswerBox
+          roomID={roomID}
+          concept={room.concept}
+          players={players}
+          playerID={playerID}
+        />
+      </div>
+  
     </div>
+  
   )
 }
