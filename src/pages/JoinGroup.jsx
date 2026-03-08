@@ -96,7 +96,7 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile, r
               </p>
             </div>
             
-            <Link to='/dashboard' className={`font-goldman text-xs ${isDarkMode ? 'text-[#7BFF6C]/60 hover:text-[#7BFF6C]' : 'text-slate-400 hover:text-red-500'} transition-colors`}>
+            <Link to='/' className={`font-goldman text-xs ${isDarkMode ? 'text-[#7BFF6C]/60 hover:text-[#7BFF6C]' : 'text-slate-400 hover:text-red-500'} transition-colors`}>
               [ BACK ]
             </Link>
           </div>
