@@ -2,20 +2,11 @@ import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
+import { concepts } from "../data/words"
 
 import Leaderboard from "../components/LeaderBoard"
 import CodeEditor from "../components/CodeEditor"
 import AnswerBox from "../components/AnswerBox"
-
-const words = [
-  "binary search",
-  "recursion",
-  "hash map",
-  "linked list",
-  "bubble sort",
-  "stack",
-  "queue"
-]
 
 export default function Game() {
 
@@ -43,15 +34,18 @@ export default function Game() {
 
     if (!players || Object.keys(players).length === 0) return
 
-    const randomWord = words[Math.floor(Math.random() * words.length)]
+    const randomConcept =
+    concepts[Math.floor(Math.random() * concepts.length)]
 
     const nextCoder = getNextCoder(players, currentCoder)
 
     update(ref(db, `rooms/${roomID}`), {
-      concept: randomWord,
-      roundActive: true,
-      currentCoder: nextCoder
-    })
+        concept: randomConcept.word,
+        hints: randomConcept.hints,
+        category: randomConcept.category,
+        roundActive: true,
+        currentCoder: nextCoder
+      })
   }
 
   useEffect(() => {
