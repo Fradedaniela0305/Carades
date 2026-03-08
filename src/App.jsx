@@ -22,7 +22,7 @@ function App() {
     const [nickname, setNickname] = useState("");
     const [language, setLanguage] = useState("english");
     const [profile, setProfile] = useState("🐱");
-  
+
     return (
         <ThemeProvider>
             {/* The toggle is placed here so it persists across all routes */}
@@ -49,10 +49,14 @@ function App() {
 
                 <Route path="/popup" element={<PopUp />} />
 
-            <Route path="/joinroom" element={<JoinGroup/>}/>
+                <Route path="/joinroom" element={<JoinGroup 
+                    playerName={nickname}
+                    playerLanguage={language}
+                    playerProfile={profile}
+                />} />
 
-            <Route path="/createroom" element={<CreateGroup/>}/>
-                        </Routes>
+                <Route path="/createroom" element={<CreateGroup />} />
+            </Routes>
         </ThemeProvider>
     )
 }
