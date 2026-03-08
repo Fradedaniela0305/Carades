@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
 import { concepts } from "../data/words"
@@ -12,12 +12,14 @@ import AnswerBox from "../components/AnswerBox"
 export default function Game() {
   const { roomID } = useParams()
   const { isDarkMode } = useTheme()
+
   const [room, setRoom] = useState(null)
   const [players, setPlayers] = useState({})
   const [currentCoder, setCurrentCoder] = useState("")
 
   const playerID = localStorage.getItem("playerID")
 
+  // Theme styling mapping
   const colors = {
     bg: isDarkMode ? "bg-black" : "bg-slate-50",
     card: isDarkMode ? "bg-black/40" : "bg-white",
@@ -30,6 +32,8 @@ export default function Game() {
     const ids = Object.keys(players)
     if (ids.length === 0) return null
     const index = ids.indexOf(currentCoder)
+    // If currentCoder isn't set yet, default to the first player
+    if (index === -1) return ids[0]
     const nextIndex = (index + 1) % ids.length
     return ids[nextIndex]
   }
@@ -38,30 +42,41 @@ export default function Game() {
     if (!players || Object.keys(players).length === 0) return
 
     const randomConcept = concepts[Math.floor(Math.random() * concepts.length)]
-    const nextCoder = getNextCoder(players, currentCoder) || currentCoder
+    const nextCoder = getNextCoder(players, currentCoder)
 
+    // Push the concept data to Firebase
     update(ref(db, `rooms/${roomID}`), {
-        concept: randomConcept.word,
-        hints: randomConcept.hints,
-        category: randomConcept.category,
-        roundActive: true,
-        currentCoder: nextCoder
-      })
+      concept: randomConcept.word,
+      hints: randomConcept.hints,
+      category: randomConcept.category,
+      roundActive: true,
+      currentCoder: nextCoder
+    })
   }
 
   useEffect(() => {
     const roomRef = ref(db, `rooms/${roomID}`)
+
     const unsubscribe = onValue(roomRef, (snapshot) => {
       const data = snapshot.val()
       if (!data) return
+
       setRoom(data)
       setPlayers(data.players || {})
       setCurrentCoder(data.currentCoder)
 
-      if (Object.keys(data.players || {}).length > 0 && !data.roundActive && playerID === data.currentCoder) {
+      // FIX: Check if round is inactive. 
+      // If we have players and the round isn't active, the current coder pushes a new concept.
+      const playerList = Object.keys(data.players || {})
+      if (
+        playerList.length > 0 &&
+        !data.roundActive &&
+        playerID === data.currentCoder
+      ) {
         startRound(data.players, data.currentCoder)
       }
     })
+
     return () => unsubscribe()
   }, [roomID, playerID])
 
@@ -76,20 +91,18 @@ export default function Game() {
   return (
     <div className={`h-screen w-screen grid grid-cols-[320px_1fr] grid-rows-[1fr_140px] gap-4 p-4 ${colors.bg} transition-colors duration-300`}>
       
-      {/* Sidebar / Leaderboard */}
+      {/* Leaderboard - Width increased to 320px to prevent scrolling */}
       <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
         <Leaderboard players={players} />
         
-        {/* Status indicator at bottom of sidebar */}
         <div className="absolute bottom-4 left-4 flex items-center gap-2">
            <div className={`w-2 h-2 rounded-full animate-pulse ${colors.accentBg}`} />
-           <span className={`text-[9px] font-mono uppercase tracking-tighter ${colors.accent}`}>Room: {roomID}</span>
+           <span className={`text-[9px] font-mono uppercase tracking-tighter ${colors.accent}`}>ID: {roomID}</span>
         </div>
       </div>
 
-      {/* Main Gameplay Area / Editor */}
+      {/* Code Editor Area */}
       <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm overflow-hidden flex flex-col relative`}>
-        {/* Decorative Top Scan Line */}
         <div className="h-1 w-full bg-white/5 relative overflow-hidden">
           <div className={`absolute inset-0 w-1/4 animate-[scan_3s_linear_infinite] ${colors.accentBg}`} />
         </div>
@@ -102,17 +115,14 @@ export default function Game() {
         </div>
       </div>
 
-      {/* Bottom Interface / Guessing */}
-      <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 flex items-center shadow-lg relative overflow-hidden`}>
+      {/* Guessing / Answer Interface */}
+      <div className={`border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 flex items-center shadow-lg relative`}>
         <AnswerBox
           roomID={roomID}
           concept={room.concept}
           players={players}
           playerID={playerID}
         />
-        
-        {/* Corner Accents */}
-        <div className={`absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 ${colors.border} opacity-50`} />
       </div>
 
       <style>{`
