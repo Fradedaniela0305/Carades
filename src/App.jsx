@@ -50,9 +50,9 @@ function App() {
 
                 <Route path="/editor" element={<CodeEditor />} />
 
-                <Route path="/rooms/:roomID/popup" element={<PopUp />} />
-
                 <Route path="/rooms/:roomID/waiting" element={<WaitingRoom />} />
+
+                <Route path="/rooms/:roomID/popup" element={<PopUp />} />
 
 
 
