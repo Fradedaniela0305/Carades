@@ -149,6 +149,36 @@ export const concepts = [
     word: "gcd",
     category: "algorithm",
     hints: "g _ d"
+    },
+    {
+    word: "dijkstra",
+    category: "algorithm",
+    hints: "d _ _ _ _ _ _ a"
+    },
+    {
+    word: "a star",
+    category: "algorithm",
+    hints: "a _ s _ _ r"
+    },
+    {
+    word: "flood fill",
+    category: "algorithm",
+    hints: "f _ _ _ d   f _ _ l"
+    },
+    {
+    word: "merge sort",
+    category: "algorithm",
+    hints: "m _ _ _ e   s _ _ _"
+    },
+    {
+    word: "quicksort",
+    category: "algorithm",
+    hints: "q _ _ _ _ _ _ _ t"
+    },
+    {
+    word: "insertion sort",
+    category: "algorithm",
+    hints: "i _ _ _ _ _ _ _ n   s _ _ _"
     }
 
 ]
