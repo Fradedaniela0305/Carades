@@ -4,7 +4,7 @@ import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
 import { concepts } from "../data/words"
 import { useTheme } from "../context/ThemeContext"
-
+import AnswerPopup from "../components/AnswerPopUp"
 import Leaderboard from "../components/LeaderBoard"
 import CodeEditor from "../components/CodeEditor"
 import AnswerBox from "../components/AnswerBox"
@@ -18,6 +18,9 @@ export default function Game() {
     const [currentCoder, setCurrentCoder] = useState("")
     const ROUND_DURATION = 120 // seconds
     const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
+
+    const [showAnswerPopup, setShowAnswerPopup] = useState(false)
+    const [revealedAnswer, setRevealedAnswer] = useState("")
 
     const playerID = localStorage.getItem("playerID")
 
@@ -39,22 +42,23 @@ export default function Game() {
         return ids[nextIndex]
     }
 
-    function startRound(players, currentCoder) {
-        if (!players || Object.keys(players).length === 0) return
-        if (!currentCoder) return
+function startRound(players, currentCoder) {
+    if (!players || Object.keys(players).length === 0) return
+    if (!currentCoder) return
 
-        const randomConcept =
-            concepts[Math.floor(Math.random() * concepts.length)]
+    const randomConcept =
+        concepts[Math.floor(Math.random() * concepts.length)]
 
-        update(ref(db, `rooms/${roomID}`), {
-            concept: randomConcept.word,
-            hints: randomConcept.hints,
-            category: randomConcept.category,
-            roundActive: true,
-            currentCoder: currentCoder,
-            roundStartTime: Date.now()
-        })
-    }
+    update(ref(db, `rooms/${roomID}`), {
+        concept: randomConcept.word,
+        hints: randomConcept.hints,
+        category: randomConcept.category,
+        roundActive: true,
+        currentCoder: currentCoder,
+        roundStartTime: Date.now(),
+        revealedAnswer: ""
+    })
+}
 
     useEffect(() => {
         const roomRef = ref(db, `rooms/${roomID}`)
@@ -64,6 +68,13 @@ export default function Game() {
             if (!data) return
 
             setRoom(data)
+
+            if (!data.roundActive && data.revealedAnswer) {
+    setRevealedAnswer(data.revealedAnswer)
+    setShowAnswerPopup(true)
+} else {
+    setShowAnswerPopup(false)
+}
             if (data.roundStartTime) {
                 const elapsed = Math.floor((Date.now() - data.roundStartTime) / 1000)
                 const remaining = ROUND_DURATION - elapsed
@@ -95,14 +106,15 @@ export default function Game() {
             const remaining = ROUND_DURATION - elapsed
             setTimeLeft(Math.max(remaining, 0))
 
-            if (remaining <= 0 && playerID === room.currentCoder) {
-                const nextCoder = getNextCoder(players, room.currentCoder)
-                update(ref(db, `rooms/${roomID}`), {
-                    concept: "",
-                    roundActive: false,
-                    currentCoder: nextCoder
-                })
-            }
+if (remaining <= 0 && playerID === room.currentCoder) {
+    const nextCoder = getNextCoder(players, room.currentCoder)
+
+    update(ref(db, `rooms/${roomID}`), {
+        revealedAnswer: room.concept,
+        roundActive: false,
+        currentCoder: nextCoder
+    })
+}
         }, 1000)
 
         return () => clearInterval(interval)
@@ -171,6 +183,8 @@ export default function Game() {
                     currentCoder={currentCoder}
                 />
             </div>
+
+            <AnswerPopup isOpen={showAnswerPopup} answer={revealedAnswer} />
 
             <style>{`
                 @keyframes scan {
