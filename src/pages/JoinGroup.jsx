@@ -51,7 +51,7 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile })
       language: playerLanguage,
       profile: playerProfile
     })
-    navigate(`/room/${roomId}`)
+    navigate(`/rooms/${roomId}/popup`)
   }
 
   async function joinByCode() {

@@ -29,9 +29,9 @@ function App() {
             <ToggleTheme />
 
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/debug" element={<Home />} />
 
-                <Route path="/login" element={<Login
+                <Route path="/" element={<Login
                     nickname={nickname}
                     setNickname={setNickname}
                     language={language}
@@ -39,7 +39,7 @@ function App() {
                     profile={profile}
                     setProfile={setProfile} />} />
 
-                <Route path="/game" element={<Game />} />
+                <Route path="/rooms/:roomID/game" element={<Game />} />
 
                 <Route path="/leaderboard" element={<LeaderBoard />} />
 
@@ -47,7 +47,7 @@ function App() {
 
                 <Route path="/editor" element={<CodeEditor />} />
 
-                <Route path="/popup" element={<PopUp />} />
+                <Route path="/rooms/:roomID/popup" element={<PopUp />} />
 
                 <Route path="/joinroom" element={<JoinGroup 
                     playerName={nickname}

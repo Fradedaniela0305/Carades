@@ -42,7 +42,7 @@ export default function CreateGroup({ nickname, language, profile }) {
       roundActive: false,
     });
 
-    navigate(`/room/${roomCode}`);
+    navigate(`/rooms/${roomCode}/popup`);
   }
 
   return (

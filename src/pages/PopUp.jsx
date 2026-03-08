@@ -1,9 +1,11 @@
 import React from "react";
 import { useTheme } from "../context/ThemeContext";
 import { Link } from "react-router-dom"
+import { useParams } from "react-router-dom";
 
 export default function PopUp({ title = "RULES" }) {
     const { isDarkMode } = useTheme();
+    const { roomID } = useParams();
 
     const colors = {
         bg: isDarkMode ? "bg-black" : "bg-slate-50",
@@ -31,7 +33,7 @@ export default function PopUp({ title = "RULES" }) {
                             <div className={`h-[3px] w-24 mt-2 shadow-[0_0_10px_#7BFF6C] ${colors.accentBg}`} />
                         </div>
 
-                        <Link to='/login' className={`absolute top-5 right-7 font-goldman text-sm ${isDarkMode ? 'text-[#7BFF6C]/60 hover:text-[#7BFF6C]' : 'text-slate-400 hover:text-red-500'} transition-colors`}>
+                        <Link to='/' className={`absolute top-5 right-7 font-goldman text-sm ${isDarkMode ? 'text-[#7BFF6C]/60 hover:text-[#7BFF6C]' : 'text-slate-400 hover:text-red-500'} transition-colors`}>
                             [ ESC ]
                         </Link>
                     </div>
@@ -48,7 +50,7 @@ export default function PopUp({ title = "RULES" }) {
                     </div>
 
                     <div className="mt-12 mb-10 flex justify-center">
-                        <Link to='/game' className={`group relative px-12 py-4 text-black font-goldman font-extrabold uppercase tracking-[0.2em] hover:scale-105 transition-all active:scale-95 ${isDarkMode ? "bg-[#7BFF6C] hover:bg-[#5cdb4f]" : "bg-[#39A132] text-white hover:bg-slate-900"}`}>
+                        <Link to={`/rooms/${roomID}/game`} className={`group relative px-12 py-4 text-black font-goldman font-extrabold uppercase tracking-[0.2em] hover:scale-105 transition-all active:scale-95 ${isDarkMode ? "bg-[#7BFF6C] hover:bg-[#5cdb4f]" : "bg-[#39A132] text-white hover:bg-slate-900"}`}>
                             CONFIRM
                             <div className={`absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 ${isDarkMode ? 'border-[#7BFF6C]' : 'border-slate-950'}`} />
                             <div className={`absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 ${isDarkMode ? 'border-[#7BFF6C]' : 'border-slate-950'}`} />
