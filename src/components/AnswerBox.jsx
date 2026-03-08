@@ -4,7 +4,7 @@ import { db } from "../lib/firebase"
 import { useTheme } from "../context/ThemeContext"
 
 // Added isCoder to the props
-export default function AnswerBox({ roomID, concept, playerID, players, isCoder }) {
+export default function AnswerBox({ roomID, concept, playerID, players, isCoder, currentCoder}) {
   const [answer, setAnswer] = useState("")
   const { isDarkMode } = useTheme()
 
@@ -21,9 +21,13 @@ export default function AnswerBox({ roomID, concept, playerID, players, isCoder 
 
     if (cleanedAnswer === cleanedConcept) {
       const currentScore = players[playerID]?.score || 0
+      const coderScore = players[currentCoder]?.score || 0
       try {
         await update(ref(db, `rooms/${roomID}/players/${playerID}`), {
-          score: currentScore + 1
+          score: currentScore + 3
+        })
+        await update(ref(db, `rooms/${roomID}/players/${currentCoder}`), {
+          score: coderScore + 1
         })
         alert("CORRECT_GUESS")
       } catch (error) {

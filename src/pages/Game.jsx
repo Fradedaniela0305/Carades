@@ -165,6 +165,7 @@ export default function Game() {
                     concept={room.concept}
                     players={players}
                     playerID={playerID}
+                    currentCoder={currentCoder}
                 />
             </div>
 
