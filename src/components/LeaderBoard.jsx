@@ -36,13 +36,18 @@ export default function Leaderboard({ players = {}, currentCoder }) {
                             <div className="flex items-center gap-3">
                                 {/* Avatar */}
                                 <div
-                                    className={`w-10 h-10 flex items-center justify-center rounded-full text-lg border-2 shadow-sm ${
-                                        isCoder 
-                                            ? (isDarkMode ? "border-[#7BFF6C] bg-[#7BFF6C]/10" : "border-[#39A132] bg-[#39A132]/10") 
-                                            : colors.border
-                                    }`}
+                                    className={`w-10 h-10 flex items-center justify-center rounded-full border-2 overflow-hidden shadow-sm ${isCoder
+                                        ? (isDarkMode ? "border-[#7BFF6C] bg-[#7BFF6C]/10" : "border-[#39A132] bg-[#39A132]/10")
+                                        : colors.border
+                                        }`}
                                 >
-                                    {player.profile}
+                                    <img
+                                        src={player.profile}
+                                        alt={`${player.name} avatar`}
+                                        className="w-[80%] h-[80%] object-contain"
+                                        style={{ transform: "translateX(2px)" }}
+                                        draggable="false"
+                                    />
                                 </div>
 
                                 {/* Name */}

@@ -94,9 +94,15 @@ async function createGroup() {
            {/* Player Summary Card */}
            <div className={`border rounded-xl p-6 ${colors.card}`}>
              <div className="flex items-center gap-5 mb-6">
-               <div className={`w-16 h-16 rounded-full border-2 ${colors.border} ${isDarkMode ? 'bg-black' : 'bg-slate-50'} flex items-center justify-center text-3xl shadow-sm`}>
-                 {profile}
-               </div>
+               <div className={`w-16 h-16 rounded-full border-2 ${colors.border} ${isDarkMode ? 'bg-black' : 'bg-slate-50'} flex items-center justify-center overflow-hidden shadow-sm`}>
+  <img
+    src={profile}
+    alt="Host avatar"
+    className="w-[75%] h-[75%] object-contain"
+    draggable="false"
+    style={{ transform: "translateX(2px)" }}
+  />
+</div>
 
 
                <div className="flex flex-col">
@@ -125,7 +131,14 @@ async function createGroup() {
 
                <div className="flex justify-between">
                  <span className={`${colors.accentText} uppercase text-xs`}>AVATAR_TYPE</span>
-                 <span className={`${colors.textMain} text-xl leading-none`}>{profile}</span>
+                 <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+  <img
+    src={profile}
+    alt="Selected avatar"
+    className="w-full h-full object-contain"
+    draggable="false"
+  />
+</div>
                </div>
              </div>
            </div>
