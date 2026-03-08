@@ -1,13 +1,20 @@
 import { Routes, Route } from "react-router-dom"
 import { useState } from "react";
+
+// Context & Global Components
+import { ThemeProvider } from "./context/ThemeContext";
+import ToggleTheme from "./components/ToggleTheme";
+
+// Pages
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Game from "./pages/Game"
+import PopUp from "./pages/PopUp"
 
-import Leaderboard from "./components/Leaderboard"
+// Components
+import LeaderBoard from "./components/LeaderBoard"
 import GuessChat from "./components/GuessChat"
 import CodeEditor from "./components/CodeEditor"
-import PopUp from "./pages/PopUp"
 
 function App() {
     const [nickname, setNickname] = useState("");
@@ -15,29 +22,33 @@ function App() {
     const [profile, setProfile] = useState("🐱");
   
     return (
-        <Routes>
-            <Route path="/" element={<Home />} />
+        <ThemeProvider>
+            {/* The toggle is placed here so it persists across all routes */}
+            <ToggleTheme />
 
-            <Route path="/login" element={<Login
-                nickname={nickname}
-                setNickname={setNickname}
-                language={language}
-                setLanguage={setLanguage}
-                profile={profile}
-                setProfile={setProfile} />} />
+            <Routes>
+                <Route path="/" element={<Home />} />
 
-            <Route path="/game" element={<Game />} />
+                <Route path="/login" element={<Login
+                    nickname={nickname}
+                    setNickname={setNickname}
+                    language={language}
+                    setLanguage={setLanguage}
+                    profile={profile}
+                    setProfile={setProfile} />} />
 
-            <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/game" element={<Game />} />
 
-            <Route path="/chat" element={<GuessChat />} />
+                <Route path="/leaderboard" element={<LeaderBoard />} />
 
-            <Route path="/editor" element={<CodeEditor />} />
+                <Route path="/chat" element={<GuessChat />} />
 
-            <Route path="/popup" element={<PopUp />} />
+                <Route path="/editor" element={<CodeEditor />} />
 
-        </Routes>
+                <Route path="/popup" element={<PopUp />} />
+            </Routes>
+        </ThemeProvider>
     )
 }
 
-export default App
+export default App;
