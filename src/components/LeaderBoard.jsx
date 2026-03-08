@@ -41,7 +41,7 @@ export default function Leaderboard({ players = {}, currentCoder }) {
   
                   {/* Name */}
                   <span className={`transition-all ${ringColor}`}>
-                    {player.name} {isCoder && "🖉"}
+                    {player.name} {isCoder && "🖊️"}
                   </span>
   
                 </div>
