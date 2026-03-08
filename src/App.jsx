@@ -21,7 +21,7 @@ import CreateGroup from "./pages/CreateGroup";
 function App() {
     const [nickname, setNickname] = useState("");
     const [language, setLanguage] = useState("english");
-    const [profile, setProfile] = useState("🐱");
+    const [profile, setProfile] = useState("/avatars/avatar_1-removebg-preview.png");
     const [roomId, setRoomId] = useState("");
 
     return (
