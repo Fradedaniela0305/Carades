@@ -8,7 +8,7 @@ export default function Leaderboard({ players = {} }) {
     const sortedPlayers = playerArray.sort((a, b) => b.score - a.score)
   
     return (
-      <div className="p-4 border rounded w-55">
+      <div className="p-4 border rounded w-full">
   
         <h2 className="text-xl font-bold mb-3">
           Leaderboard
