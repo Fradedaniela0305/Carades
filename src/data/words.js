@@ -141,7 +141,7 @@ export const concepts = [
     },
     {
         word: "prime numbers",
-        category: "algorithm",
+        category: "mathematics",
         hints: "p _ _ _ e      n _ _ _ _ _ s",
     },
     {
@@ -198,5 +198,48 @@ export const concepts = [
         word: "primary key",
         category: "database",
         hints: "p _ _ _ _ _ _      k _ _"
+    },{
+        word: "boolean",
+        category: "programming concept",
+        hints: "b _ _ _ _ _ _"
+    }, {
+        word: "api",
+        category: "software concept",
+        hints: "a _ _"
+    },
+    {
+        word: "syntax error",
+        category: "bug",
+        hints: "s _ _ _ _ _      e _ _ _ _"
+    },
+    {
+        word: "memory leak",
+        category: "bug",
+        hints: "m _ _ _ _ y      l _ _ _"
+    },
+    {
+        word: "dangling pointer",
+        category: "bug",
+        hints: "d _ _ _ _ i _ _      p _ _ _ _ _ r"
+    },
+    {
+        word: "hello world",
+        category: "programming culture",
+        hints: "h _ _ _ _      w _ _ _ _"
+    }, 
+    {
+        word: "not found",
+        category: "response status",
+        hints: "n _ _      f _ _ _ _"
+    }, 
+    {
+        word: "ok",
+        category: "response status",
+        hints: "o _"
+    },
+    {
+        word: "bad request",
+        category: "response status",
+        hints: "b _ _      r _ _ _ _ _ _"
     }
 ];
