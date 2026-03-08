@@ -240,4 +240,4 @@ export default function Game() {
             `}</style>
         </div>
     )
-}0
+}
