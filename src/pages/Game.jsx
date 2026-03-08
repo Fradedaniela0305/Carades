@@ -17,7 +17,7 @@ export default function Game() {
     const [room, setRoom] = useState(null)
     const [players, setPlayers] = useState({})
     const [currentCoder, setCurrentCoder] = useState("")
-    const ROUND_DURATION = 30
+    const ROUND_DURATION = 60
     const [timeLeft, setTimeLeft] = useState(ROUND_DURATION)
 
     const [showAnswerPopup, setShowAnswerPopup] = useState(false)

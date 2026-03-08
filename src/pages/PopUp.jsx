@@ -41,7 +41,7 @@ export default function PopUp({ title = "RULES" }) {
                     <div className={`font-goldman ${colors.textMain} space-y-8 text-sm md:text-base tracking-wide`}>
                         <div className="flex items-start gap-5">
                             <span className={`font-bold text-xl ${colors.accentText}`}>01/</span>
-                            <p className="pt-1">Write a coding concept in <span className={`font-bold ${colors.accentText}`}>120 seconds</span>.</p>
+                            <p className="pt-1">Write a coding concept in <span className={`font-bold ${colors.accentText}`}>60 seconds</span>.</p>
                         </div>
                         <div className="flex items-start gap-5">
                             <span className={`font-bold text-xl ${colors.accentText}`}>02/</span>
