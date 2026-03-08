@@ -3,7 +3,7 @@ import { ref, set, serverTimestamp } from "firebase/database";
 import { db } from "../lib/firebase";
 import { useTheme } from "../context/ThemeContext";
 
-export default function CreateGroup({ nickname, language, profile }) {
+export default function CreateGroup({ nickname, language, profile, roomId, setRoomId }) {
   const navigate = useNavigate();
   const { isDarkMode } = useTheme();
 
@@ -31,33 +31,34 @@ export default function CreateGroup({ nickname, language, profile }) {
     return code;
   }
 
-  async function createGroup() {
-    if (!nickname || !language || !profile) {
-      alert("Please complete your profile before creating a group.");
-      return;
-    }
-
-    const roomCode = generateRoomCode();
-    const playerId = crypto.randomUUID();
-
-    await set(ref(db, `rooms/${roomCode}`), {
-      language: language,
-      createdAt: serverTimestamp(),
-      players: {
-        [playerId]: {
-          name: nickname,
-          score: 0,
-          language: language,
-          profile: profile,
-        },
-      },
-      currentCoder: playerId,
-      concept: "",
-      roundActive: false,
-    });
-
-    navigate(`/rooms/${roomCode}/popup`);
+async function createGroup() {
+  if (!nickname || !language || !profile) {
+    alert("Please complete your profile before creating a group.");
+    return;
   }
+
+  const roomCode = generateRoomCode();
+  const playerId = crypto.randomUUID();
+
+  await set(ref(db, `rooms/${roomCode}`), {
+    language: language,
+    createdAt: serverTimestamp(),
+    players: {
+      [playerId]: {
+        name: nickname,
+        score: 0,
+        language: language,
+        profile: profile,
+      },
+    },
+    currentCoder: playerId,
+    concept: "",
+    roundActive: false,
+  });
+
+  setRoomId(roomCode);
+  navigate(`/rooms/${roomCode}/popup`);
+}
 
   return (
     <div className={`min-h-screen min-w-screen ${colors.pageBg} flex items-center justify-center p-6 transition-colors duration-400`}>

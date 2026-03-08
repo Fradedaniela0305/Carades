@@ -1,7 +1,7 @@
 import { db } from "../lib/firebase"
 import { ref, set } from "firebase/database"
 
-function Game() {
+function Game({roomId}) {
     function testWrite() {
 
         set(ref(db, "test/message"), {
