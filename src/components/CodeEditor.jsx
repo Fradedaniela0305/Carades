@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Editor from "@monaco-editor/react"
-import { useTheme } from "../context/ThemeContext" // Added for consistency
+import { useTheme } from "../context/ThemeContext"
+import { ref, onValue, update } from "firebase/database"
+import { db } from "../lib/firebase"
 
 const commentMap = {
   javascript: "// write your code hint here",
@@ -15,23 +17,66 @@ const commentMap = {
   sql: "-- write your code hint here"
 }
 
-export default function CodeEditor() {
+export default function CodeEditor({ roomID, isCoder }) {
+
   const [language, setLanguage] = useState("javascript")
   const [code, setCode] = useState(commentMap["javascript"])
-  const { isDarkMode } = useTheme() // Check current theme
+  const { isDarkMode } = useTheme()
+
+  // Listen for code changes from Firebase
+  useEffect(() => {
+
+    const roomRef = ref(db, `rooms/${roomID}`)
+
+    const unsubscribe = onValue(roomRef, snapshot => {
+
+      const data = snapshot.val()
+      if (!data) return
+
+      if (data.code !== undefined) setCode(data.code)
+      if (data.language) setLanguage(data.language)
+
+    })
+
+    return () => unsubscribe()
+
+  }, [roomID])
 
   function handleLanguageChange(e) {
+
     const newLang = e.target.value
     setLanguage(newLang)
     setCode(commentMap[newLang])
+
+    if (isCoder) {
+      update(ref(db, `rooms/${roomID}`), {
+        language: newLang,
+        code: commentMap[newLang]
+      })
+    }
+
+  }
+
+  function handleCodeChange(value) {
+
+    const newCode = value || ""
+    setCode(newCode)
+
+    if (isCoder) {
+      update(ref(db, `rooms/${roomID}`), {
+        code: newCode
+      })
+    }
+
   }
 
   return (
     <div className="flex flex-col gap-3">
+
       <select
         value={language}
         onChange={handleLanguageChange}
-        // Updated styling to match your login/create group inputs
+        disabled={!isCoder}
         className={`w-40 border rounded-lg px-3 py-2 outline-none font-goldman transition-all ${
           isDarkMode
             ? "bg-black text-[#7BFF6C] border-[#7BFF6C]/40 focus:border-[#7BFF6C]"
@@ -50,22 +95,26 @@ export default function CodeEditor() {
         <option value="sql">SQL</option>
       </select>
 
-      <div className={`border-2 rounded-xl overflow-hidden ${isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'}`}>
+      <div className={`border-2 rounded-xl overflow-hidden ${
+        isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'
+      }`}>
+
         <Editor
           height="250px"
           width="100%"
           language={language}
           value={code}
-          // THEME PROP: "vs-dark" for dark mode, "light" for light mode
           theme={isDarkMode ? "vs-dark" : "light"}
-          onChange={(value) => setCode(value || "")}
+          onChange={handleCodeChange}
           options={{
             minimap: { enabled: false },
             fontSize: 14,
             padding: { top: 10 },
             scrollBeyondLastLine: false,
+            readOnly: !isCoder
           }}
         />
+
       </div>
     </div>
   )
