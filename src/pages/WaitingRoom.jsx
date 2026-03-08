@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom"
 import { ref, onValue, update } from "firebase/database"
 import { db } from "../lib/firebase"
 import { useTheme } from "../context/ThemeContext"
-import QRCode from "react-qr-code"
 
 export default function WaitingRoom() {
     const { roomID } = useParams()
@@ -51,10 +50,7 @@ export default function WaitingRoom() {
 
     const isHost = playerID === room?.hostId
 
-    // 2+ players required
     const canStart = isHost && playerList.length > 1
-
-    const joinLink = `${window.location.origin}/rooms/${roomID}/join`
 
     async function startGame() {
         if (!canStart) return
@@ -79,92 +75,70 @@ export default function WaitingRoom() {
                     <div className={`absolute inset-0 w-1/3 animate-[scan_2s_linear_infinite] ${colors.accentBg}`} />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-12 p-12">
-                    <div>
-                        <h1 className={`font-goldman text-5xl uppercase tracking-widest mb-3 ${colors.textMain}`}>
-                            Waiting Room
-                        </h1>
+                <div className="p-12">
+                    <h1 className={`font-goldman text-5xl uppercase tracking-widest mb-3 ${colors.textMain}`}>
+                        Waiting Room
+                    </h1>
 
-                        <p className={`font-goldman text-lg mb-8 ${colors.accentText}`}>
-                            ROOM CODE: {roomID}
-                        </p>
+                    <p className={`font-goldman text-lg mb-8 ${colors.accentText}`}>
+                        ROOM CODE: {roomID}
+                    </p>
 
-                        <div className={`border rounded-2xl p-8 ${colors.card}`}>
-                            <h2 className={`font-goldman text-2xl mb-6 ${colors.accentText}`}>
-                                Connected Players
-                            </h2>
+                    <div className={`border rounded-2xl p-8 ${colors.card}`}>
+                        <h2 className={`font-goldman text-2xl mb-6 ${colors.accentText}`}>
+                            Connected Players
+                        </h2>
 
-                            <div className="space-y-4">
-                                {playerList.map(([id, player]) => (
-                                    <div
-                                        key={id}
-                                        className={`flex items-center justify-between border rounded-xl px-6 py-5 ${isDarkMode ? "border-[#7BFF6C]/20" : "border-slate-200"}`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-14 h-14 text-2xl rounded-full flex items-center justify-center border ${colors.border}`}>
-                                                {player.profile}
-                                            </div>
-
-                                            <div>
-                                                <div className={`font-goldman text-xl ${colors.textMain}`}>
-                                                    {player.name}
-                                                </div>
-                                                <div className={`text-sm ${colors.accentText}`}>
-                                                    {id === room.hostId ? "HOST" : "PLAYER"}
-                                                </div>
-                                            </div>
+                        <div className="space-y-4">
+                            {playerList.map(([id, player]) => (
+                                <div
+                                    key={id}
+                                    className={`flex items-center justify-between border rounded-xl px-6 py-5 ${isDarkMode ? "border-[#7BFF6C]/20" : "border-slate-200"}`}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-14 h-14 text-2xl rounded-full flex items-center justify-center border ${colors.border}`}>
+                                            {player.profile}
                                         </div>
 
-                                        <div className={`${colors.textMain} text-lg`}>
-                                            Score: {player.score ?? 0}
+                                        <div>
+                                            <div className={`font-goldman text-xl ${colors.textMain}`}>
+                                                {player.name}
+                                            </div>
+                                            <div className={`text-sm ${colors.accentText}`}>
+                                                {id === room.hostId ? "HOST" : "PLAYER"}
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
 
-                        <div className="mt-8 flex justify-center md:justify-start">
-                            <button
-                                onClick={startGame}
-                                disabled={!canStart}
-                                className={`group relative px-14 py-5 border-2 text-lg font-goldman font-extrabold uppercase tracking-[0.2em] transition-all active:scale-95 ${
-                                    canStart
-                                        ? colors.button
-                                        : "border-gray-500 text-gray-500 opacity-50 cursor-not-allowed"
-                                }`}
-                            >
-                                Start Game
-                            </button>
-                        </div>
-
-                        <p className={`mt-4 text-base ${colors.accentText}`}>
-                            {isHost
-                                ? playerList.length > 1
-                                    ? "Enough players connected."
-                                    : "Need at least 2 players to start."
-                                : "Only the host can start the game."}
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center">
-                        <div className={`border rounded-2xl p-8 ${colors.card} w-full max-w-lg flex flex-col items-center`}>
-                            <h2 className={`font-goldman text-2xl mb-6 ${colors.accentText}`}>
-                                Join This Room
-                            </h2>
-
-                            <div className="bg-white p-6 rounded-2xl">
-                                <QRCode value={joinLink} size={260} />
-                            </div>
-
-                            <p className={`mt-6 text-base break-all text-center ${colors.textMain}`}>
-                                {joinLink}
-                            </p>
-
-                            <p className={`mt-3 text-sm text-center ${colors.accentText}`}>
-                                Scan the QR code or share the link
-                            </p>
+                                    <div className={`${colors.textMain} text-lg`}>
+                                        Score: {player.score ?? 0}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
+
+                    <div className="mt-8 flex justify-center md:justify-start">
+                        <button
+                            onClick={startGame}
+                            disabled={!canStart}
+                            className={`group relative px-14 py-5 border-2 text-lg font-goldman font-extrabold uppercase tracking-[0.2em] transition-all active:scale-95 ${
+                                canStart
+                                    ? colors.button
+                                    : "border-gray-500 text-gray-500 opacity-50 cursor-not-allowed"
+                            }`}
+                        >
+                            Start Game
+                        </button>
+                    </div>
+
+                    <p className={`mt-4 text-base ${colors.accentText}`}>
+                        {isHost
+                            ? playerList.length > 1
+                                ? "Enough players connected."
+                                : "Need at least 2 players to start."
+                            : "Only the host can start the game."}
+                    </p>
                 </div>
 
                 <div className={`${colors.footer} py-4 px-10 flex justify-between items-center border-t ${isDarkMode ? "border-[#7BFF6C]/10" : "border-slate-200"}`}>
