@@ -53,7 +53,7 @@ export default function CodeEditor() {
       <div className={`border-2 rounded-xl overflow-hidden ${isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'}`}>
         <Editor
           height="250px"
-          width="50vw"
+          width="100%"
           language={language}
           value={code}
           // THEME PROP: "vs-dark" for dark mode, "light" for light mode
