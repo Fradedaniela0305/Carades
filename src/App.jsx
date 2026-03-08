@@ -10,6 +10,7 @@ import Home from "./pages/Home"
 import Login from "./pages/Login"
 import Game from "./pages/Game"
 import PopUp from "./pages/PopUp"
+import WaitingRoom from "./pages/WaitingRoom";
 
 // Components
 import LeaderBoard from "./components/LeaderBoard"
@@ -50,6 +51,10 @@ function App() {
                 <Route path="/editor" element={<CodeEditor />} />
 
                 <Route path="/rooms/:roomID/popup" element={<PopUp />} />
+
+                <Route path="/rooms/:roomID/waiting" element={<WaitingRoom />} />
+
+
 
                 <Route path="/joinroom" element={<JoinGroup 
                     playerName={nickname}

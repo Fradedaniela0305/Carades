@@ -45,14 +45,14 @@ export default function JoinGroup({ playerName, playerLanguage, playerProfile, r
 
   async function joinRoom(roomId) {
     const playerId = crypto.randomUUID()
-    localStorage.setItem("playerID", playerId)
+    
     await set(ref(db, `rooms/${roomId}/players/${playerId}`), {
       name: playerName,
       score: 0,
       language: playerLanguage,
       profile: playerProfile
     })
-    navigate(`/rooms/${roomId}/popup`)
+    navigate(`/rooms/${roomCode}/waiting`)
     setRoomId(roomId)
   }
 
