@@ -93,7 +93,10 @@ export default function Game() {
       
       {/* Leaderboard - Width increased to 320px to prevent scrolling */}
       <div className={`row-span-2 border-2 ${colors.border} rounded-2xl ${colors.card} backdrop-blur-sm p-4 overflow-y-auto relative shadow-xl`}>
-        <Leaderboard players={players} />
+        
+        <div className={`${colors.accent}`}>
+        <Leaderboard players={players}/>
+        </div>
         
         <div className="absolute bottom-4 left-4 flex items-center gap-2">
            <div className={`w-2 h-2 rounded-full animate-pulse ${colors.accentBg}`} />
