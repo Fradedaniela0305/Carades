@@ -3,8 +3,6 @@ import { useTheme } from "../context/ThemeContext"
 export default function AnswerPopup({ answer }) {
   const { isDarkMode } = useTheme()
 
-  if (!isOpen) return null
-
   const colors = {
     card: isDarkMode ? "bg-black/90" : "bg-white",
     border: isDarkMode ? "border-[#7BFF6C]/30" : "border-slate-300",
