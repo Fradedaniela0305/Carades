@@ -61,8 +61,25 @@ export default function CodeEditor({ roomID, isCoder }) {
   }
 
   return (
-    /* Changed mt-8 to mt-22 to move the component down further */
     <div className="mt-22 flex flex-col gap-6">
+      {/* Role Status Indicator */}
+      <div className="flex items-center gap-2 px-2">
+        {isCoder ? (
+          <>
+            <div className="h-2 w-2 rounded-full bg-[#7BFF6C] animate-pulse shadow-[0_0_8px_#7BFF6C]" />
+            <span className="font-goldman text-xs tracking-[0.2em] text-[#7BFF6C] uppercase italic font-bold">
+              Role: Coder
+            </span>
+          </>
+        ) : (
+          <>
+            <div className="h-2 w-2 rounded-full bg-slate-500 shadow-[0_0_4px_rgba(255,255,255,0.2)]" />
+            <span className="font-goldman text-xs tracking-[0.2em] text-slate-400 uppercase italic font-bold">
+              Role: Spectator
+            </span>
+          </>
+        )}
+      </div>
       
       {/* Language Selector */}
       <select
@@ -92,8 +109,7 @@ export default function CodeEditor({ roomID, isCoder }) {
         isDarkMode ? 'border-[#7BFF6C]/30' : 'border-slate-300'
       }`}>
         <Editor
-          /* Increased height to 600px to make the IDE longer lengthwise */
-          height="400px"
+          height="600px"
           width="100%"
           language={language}
           value={code}
