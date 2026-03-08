@@ -1,5 +1,6 @@
 import ProfilePicker from "../components/ProfilePicker";
-import { Link } from "react-router-dom"
+import { useTheme } from "../context/ThemeContext";
+import ToggleTheme from "../components/ToggleTheme";
 
 export default function Login({
   nickname,
@@ -9,29 +10,36 @@ export default function Login({
   profile,
   setProfile,
 }) {
+  const { isDarkMode } = useTheme();
 
-    const guardNickname = (e) => {
-        if (!nickname.trim()) {
-          e.preventDefault();
-          alert("Please enter a nickname first");
-        }
-      };
+  // Dynamic color constants to keep the code clean
+  const bgColor = isDarkMode ? "bg-black" : "bg-slate-50";
+  const cardBg = isDarkMode ? "bg-black" : "bg-white";
+  const textColor = isDarkMode ? "text-white" : "text-slate-900";
+  const borderColor = isDarkMode ? "border-[#7BFF6C]" : "border-[#39A132]";
+  const shadowColor = isDarkMode 
+    ? "shadow-[0_0_30px_rgba(123,255,108,0.15)]" 
+    : "shadow-[0_10px_40px_rgba(0,0,0,0.1)]";
+
   return (
-    <div className="min-h-screen min-w-screen bg-black text-white flex items-center justify-center p-6">
-      <div className="relative w-full max-w-[520px] bg-black border-2 border-[#7BFF6C] rounded-2xl shadow-[0_0_30px_rgba(123,255,108,0.15)] overflow-hidden">
+    <div className={`min-h-screen min-w-screen flex items-center justify-center p-6 transition-colors duration-300 ${bgColor} ${textColor}`}>
+      {/* Theme Toggle Button */}
+      <ToggleTheme />
+
+      <div className={`relative w-full max-w-[520px] border-2 rounded-2xl overflow-hidden transition-all duration-300 ${cardBg} ${borderColor} ${shadowColor}`}>
         
         {/* top scanning bar */}
-        <div className="h-1 w-full bg-[#7BFF6C]/10 relative overflow-hidden">
-          <div className="absolute inset-0 w-1/3 animate-[scan_2s_linear_infinite] bg-[#7BFF6C]" />
+        <div className={`h-1 w-full relative overflow-hidden ${isDarkMode ? "bg-[#7BFF6C]/10" : "bg-[#39A132]/10"}`}>
+          <div className={`absolute inset-0 w-1/3 animate-[scan_2s_linear_infinite] ${isDarkMode ? "bg-[#7BFF6C]" : "bg-[#39A132]"}`} />
         </div>
 
         <div className="p-10">
           {/* title */}
           <div className="flex flex-col items-center mb-10">
-            <h2 className="font-goldman text-4xl tracking-widest uppercase italic font-bold text-white">
+            <h2 className={`font-goldman text-4xl tracking-widest uppercase italic font-bold ${textColor}`}>
               Carades
             </h2>
-            <div className="h-[3px] w-24 mt-2 bg-[#7BFF6C] shadow-[0_0_10px_#7BFF6C]" />
+            <div className={`h-[3px] w-24 mt-2 shadow-[0_0_10px_rgba(123,255,108,0.5)] ${isDarkMode ? "bg-[#7BFF6C]" : "bg-[#39A132]"}`} />
           </div>
 
           {/* profile picker */}
@@ -42,11 +50,15 @@ export default function Login({
           {/* form */}
           <div className="space-y-6 font-goldman">
             <div>
-              <h4 className="text-[#7BFF6C] uppercase tracking-[0.2em] text-sm mb-2">
+              <h4 className={`uppercase tracking-[0.2em] text-sm mb-2 ${isDarkMode ? "text-[#7BFF6C]" : "text-[#39A132]"}`}>
                 Nickname
               </h4>
               <input
-                className="w-full bg-white text-black border border-[#7BFF6C]/40 rounded-lg px-4 py-3 outline-none focus:border-[#7BFF6C] focus:shadow-[0_0_12px_rgba(123,255,108,0.25)]"
+                className={`w-full border rounded-lg px-4 py-3 outline-none transition-all ${
+                  isDarkMode 
+                    ? "bg-white text-black border-[#7BFF6C]/40 focus:border-[#7BFF6C] focus:shadow-[0_0_12px_rgba(123,255,108,0.25)]" 
+                    : "bg-slate-100 text-slate-900 border-slate-300 focus:border-[#39A132] focus:ring-1 focus:ring-[#39A132]"
+                }`}
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="Enter nickname"
@@ -54,11 +66,15 @@ export default function Login({
             </div>
 
             <div>
-              <h4 className="text-[#7BFF6C] uppercase tracking-[0.2em] text-sm mb-2">
+              <h4 className={`uppercase tracking-[0.2em] text-sm mb-2 ${isDarkMode ? "text-[#7BFF6C]" : "text-[#39A132]"}`}>
                 Language
               </h4>
               <select
-                className="w-full bg-white text-black border border-[#7BFF6C]/40 rounded-lg px-4 py-3 outline-none focus:border-[#7BFF6C] focus:shadow-[0_0_12px_rgba(123,255,108,0.25)]"
+                className={`w-full border rounded-lg px-4 py-3 outline-none transition-all ${
+                  isDarkMode 
+                    ? "bg-white text-black border-[#7BFF6C]/40 focus:border-[#7BFF6C]" 
+                    : "bg-slate-100 text-slate-900 border-slate-300 focus:border-[#39A132]"
+                }`}
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
               >
@@ -72,30 +88,35 @@ export default function Login({
 
           {/* actions */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/joinroom" onClick={guardNickname} className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
-              Join Group
-              <div className="absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-[#7BFF6C]" />
-              <div className="absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-[#7BFF6C]" />
-            </Link>
-
-            <Link to='/createroom' onClick={guardNickname} className="group relative px-8 py-3 border-2 border-[#7BFF6C] text-[#7BFF6C] font-goldman font-extrabold uppercase tracking-[0.2em] hover:bg-[#7BFF6C] hover:text-black hover:scale-105 transition-all active:scale-95">
-              Create Group
-              <div className="absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 border-[#7BFF6C]" />
-              <div className="absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 border-[#7BFF6C]" />
-            </Link>
+            {[ "Join Group", "Create Group" ].map((text) => (
+              <button 
+                key={text}
+                className={`group relative px-8 py-3 border-2 font-goldman font-extrabold uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95 ${
+                  isDarkMode 
+                    ? "border-[#7BFF6C] text-[#7BFF6C] hover:bg-[#7BFF6C] hover:text-black" 
+                    : "border-[#39A132] text-[#39A132] hover:bg-[#39A132] hover:text-white"
+                }`}
+              >
+                {text}
+                <div className={`absolute -top-2 -left-2 w-3 h-3 border-t-2 border-l-2 ${isDarkMode ? "border-[#7BFF6C]" : "border-[#39A132]"}`} />
+                <div className={`absolute -bottom-2 -right-2 w-3 h-3 border-b-2 border-r-2 ${isDarkMode ? "border-[#7BFF6C]" : "border-[#39A132]"}`} />
+              </button>
+            ))}
           </div>
         </div>
 
         {/* footer */}
-        <div className="bg-[#7BFF6C]/5 py-3 px-8 flex justify-between items-center border-t border-[#7BFF6C]/10">
-          <span className="text-[10px] font-mono tracking-tighter text-[#7BFF6C]/40">
+        <div className={`py-3 px-8 flex justify-between items-center border-t ${
+          isDarkMode ? "bg-[#7BFF6C]/5 border-[#7BFF6C]/10" : "bg-slate-50 border-slate-200"
+        }`}>
+          <span className={`text-[10px] font-mono tracking-tighter ${isDarkMode ? "text-[#7BFF6C]/40" : "text-slate-400"}`}>
             v1.0.0 // LOGIN_PORTAL
           </span>
           <div className="flex gap-1.5 items-center">
-            <span className="text-[9px] font-goldman tracking-tight text-[#7BFF6C]">
+            <span className={`text-[9px] font-goldman tracking-tight ${isDarkMode ? "text-[#7BFF6C]" : "text-[#39A132]"}`}>
               SESSION_READY
             </span>
-            <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-[#7BFF6C]" />
+            <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isDarkMode ? "bg-[#7BFF6C]" : "bg-[#39A132]"}`} />
           </div>
         </div>
       </div>
